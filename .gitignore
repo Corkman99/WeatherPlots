@@ -1,0 +1,6 @@
+*.temp
+temp.*
+
+__pycache__
+/HurricaneIan_GC-OP
+/plotenv
