@@ -1,29 +1,33 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from panels import *
 from common_utils import *
 import numpy as np
 import pickle
 
-dataset_names = ["local", "global"]
+dataset_names = ["Optim_noprecip", "Optim_noprecip over time"]
 dataset_paths = [
-    # "DATA/GraphCast_OP/Hurricane_Ian_GC-OP/date-20250704_hurricane-ian_target-miami/losses.pkl",
-    # "DATA/GraphCast_OP/Hurricane_Ian_GC-OP/date-20250704_hurricane-ian_target-tallahassee/losses.pkl",
-    # "DATA/GraphCast_OP/Hurricane_Ian_GC-OP/date-20250710_hurricane-ian_optimal_local_1e-4_14step/losses.pkl",
-    # "DATA/GraphCast_OP/Hurricane_Ian_GC-OP/date-20250710_hurricane-ian_optimal_1e-4_14step/losses.pkl",
-    # "DATA/GraphCast_OP/Hurricane_Ian_GC-OP/date-20250704_hurricane-ian_wind-intensification/losses.pkl",
-    "DATA/GraphCast_OP/Hurricane_Ian_GC-OP/hurricane-ian_optimal_1e-4_14step_wind-finetune/losses.pkl"
+    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/optim_noprecip_1e4_ep80/losses.pkl"
 ]
-save_path = "plotting/Hurricane-Ian/time_losses_14step_finetune.png"
+save_path = "HurricaneIan_GC-OP/optim_noprecip_loss.png"
 
 maps = []
 for i, dataset_path in enumerate(dataset_paths):
     # open pickle file
     with open(dataset_path, "rb") as f:
         ds = pickle.load(f)
-    ds = ds[1:, :]
+    ts = ds[1:, :]
+    tot = ts.mean(axis=1)
     maps.append(
-        lambda ax, ds=ds, j=i: plot_timeseries_losses(ax, ds, 2, dataset_names[j])
+        lambda ax, ds=tot, j=i: plot_timeseries_losses(ax, ds, 2, dataset_names[j])
+    )
+    maps.append(
+        lambda ax, ds=ts, j=i: plot_timeseries_losses(ax, ds, 10, dataset_names[j])
     )
 
-fig = create_multi_panel_figure(maps, nrows=2, ncols=1, figsize=(8, 10))
+fig = create_multi_panel_figure(maps, nrows=1, ncols=2, figsize=(12, 6))
 
 plt.savefig(save_path, bbox_inches="tight")

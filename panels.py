@@ -390,6 +390,12 @@ def plot_timeseries_losses(
     Return axes with plot with time on the x-axis and loss on the y-axis.
     """
 
+    if ds.ndim == 1:
+        ax.plot(np.arange(0, ds.shape[0]), ds, label="Total Loss")
+        ax.set_xlabel("Epoch")
+        ax.set_ylabel("Loss")
+        return ax
+
     # If stride is not specified, default to 1 (no skipping)
     if stride is None:
         stride = 1
@@ -412,4 +418,21 @@ def plot_timeseries_losses(
     if title is not None:
         ax.set_title(title)
 
+    return ax
+
+
+def plot_variable_as_line(
+    ax: Union[Axes, GeoAxes],
+    ds: xr.Dataset,
+):
+    # x-axis is time
+    # y-axis is some score
+    for line in ds.data_vars:
+        ax.plot(ds[line].time, ds[line], label=line)
+
+    # add a horizontal line at y=0
+    ax.axhline(0, color="grey", linestyle="--", linewidth=0.5)
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Score")
+    ax.legend()
     return ax

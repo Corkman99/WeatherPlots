@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from panels import *
 from common_utils import *
 import xarray as xr
@@ -11,7 +16,7 @@ import os
 
 HOME = os.environ["HOME"]
 
-save_path = HOME + "/WeatherPlots/HurricaneIan_GC-OP/no_initial_optim_t2m_mslp.png"
+save_path = HOME + "/WeatherPlots/HurricaneIan_GC-OP/optimal_noprecip_leadtime.png"
 
 time_axis = [
     np.datetime64("2022-09-26T00:00:00") + np.timedelta64(6 * x, "h") for x in range(16)
@@ -21,17 +26,26 @@ time_axis = [
 # Load datasets from ~/GenCast/DATA/GraphCast_OP/Hurricane_Ian_GC-OP
 pattern = "regional_ep-*.nc"
 optimal_track_14 = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/date-20250704_hurricane-optimal-1e-4",
+    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/optim_noprecip_1e4_ep80",
     pattern=pattern,
 )
-miami_track = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/from_raw/miami_1e-5",
+optimal_track_8 = merge_netcdf_files(
+    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/optim_noprecip_1e-4_8step",
     pattern=pattern,
 )
-tallahassee_track = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/from_raw/tallahassee_1e-5",
+optimal_track_4 = merge_netcdf_files(
+    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/optim_noprecip_1e-4_4step",
     pattern=pattern,
 )
+
+# miami_track = merge_netcdf_files(
+#    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/from_raw/miami_1e-5",
+#    pattern=pattern,
+# )
+# tallahassee_track = merge_netcdf_files(
+#    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/from_raw/tallahassee_1e-5",
+#    pattern=pattern,
+# )
 
 # Load HRES data
 hres = xr.open_dataset(
@@ -50,9 +64,10 @@ variables = {
     # "temperature": "t500",
     # "u_component_of_wind": "u1000",
     # "v_component_of_wind": "v1000",
+    "total_precipitation_6hr": "tp",
 }
 plevels = None  # [500]
-times = [-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4]
+times = [-4, -3, -2, -1]
 
 
 def to_degreeC(x):
@@ -97,16 +112,22 @@ def wrapped_prep_data(
 
 
 optimal_track_14 = wrapped_prep_data(optimal_track_14).squeeze()
-original = optimal_track_14.sel(epoch=0, drop=True)
-optimal = optimal_track_14.sel(epoch=39, drop=True)
+original_14 = optimal_track_14.sel(epoch=0, drop=True)
+optimal_14 = optimal_track_14.sel(epoch=79, drop=True)
+optimal_track_8 = wrapped_prep_data(optimal_track_8).squeeze()
+original_8 = optimal_track_8.sel(epoch=0, drop=True)
+optimal_8 = optimal_track_8.sel(epoch=9, drop=True)
+optimal_track_4 = wrapped_prep_data(optimal_track_4).squeeze()
+original_4 = optimal_track_4.sel(epoch=0, drop=True)
+optimal_4 = optimal_track_4.sel(epoch=9, drop=True)
 
-miami_track = wrapped_prep_data(miami_track).squeeze().sel(epoch=19, drop=True)
-tallahassee_track = (
-    wrapped_prep_data(tallahassee_track).squeeze().sel(epoch=19, drop=True)
-)
+# miami_track = wrapped_prep_data(miami_track).squeeze().sel(epoch=19, drop=True)
+# tallahassee_track = (
+#    wrapped_prep_data(tallahassee_track).squeeze().sel(epoch=19, drop=True)
+# )
 
 hres = wrapped_prep_data(hres).squeeze()
-hres = hres.assign_coords(time=original.time.values)
+hres = hres.assign_coords(time=original_4.time.values)
 
 # Define plotting specifications
 title = "Hurricane Ian - HRES-fc0 Landfall at 2022-09-28 18z"
@@ -114,10 +135,14 @@ title = "Hurricane Ian - HRES-fc0 Landfall at 2022-09-28 18z"
 # Plotting items
 dats = [
     hres,
-    original,
-    # optimal,
-    miami_track,
-    tallahassee_track,
+    original_14,
+    optimal_14,
+    original_8,
+    optimal_8,
+    original_4,
+    optimal_4,
+    # miami_track,
+    # tallahassee_track,
 ]
 
 # Plotting specs:
@@ -136,12 +161,12 @@ fcontour = {
     "specs": {"cmap": cmap, "levels": np.arange(-10, 5, 0.5), "extend": extend},
 }
 fcontour = {
-    "variable": "uv10",
-    "specs": {"cmap": cmap, "levels": np.arange(0, 50, 4), "extend": extend},
-}
-fcontour = {
     "variable": "t2m",
     "specs": {"cmap": cmap, "levels": np.arange(16, 36, 2), "extend": extend},
+}
+fcontour = {
+    "variable": "uv10",
+    "specs": {"cmap": cmap, "levels": np.arange(0, 30, 4), "extend": extend},
 }
 contour = {
     "variable": "z1000",
@@ -152,8 +177,12 @@ contour = {
     "specs": {"colors": "grey", "levels": np.arange(5500, 6200, 100), "label": True},
 }
 contour = {
+    "variable": "tp",
+    "specs": {"colors": "black", "levels": np.arange(1e-6, 1e-2, 2e-3), "label": True},
+}
+contour = {
     "variable": "mslp",
-    "specs": {"colors": "black", "levels": np.arange(950, 1050, 10), "label": True},
+    "specs": {"colors": "black", "levels": np.arange(930, 1050, 10), "label": True},
 }
 arrows = {
     "variable": ["u500", "v500"],
@@ -178,13 +207,17 @@ for dat in dats:
         )
         maps.append(map)
 
-times = [-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4]
 column_titles = [str(6 * (x + 5)) for x in times]
 row_titles = [
     "HRES-fc0",
-    "Original",
-    "Miami Target (ep20)",
-    "Tallahassee (ep20)",
+    "Original 14step",
+    "Optimized 14step (ep80)",
+    "Original 8step",
+    "Optimized 8step (ep10)",
+    "Original 4step",
+    "Optimized 4step (ep10)",
+    # "Miami Target (ep20)",
+    # "Tallahassee (ep20)",
     # "Origianl 10step",
     # "Optimized 10step (ep50)",
 ]
@@ -206,7 +239,7 @@ fig = create_multi_panel_figure(
     maps,
     nrows=len(dats),
     ncols=len(times),
-    figsize=(26, 12),
+    figsize=(12, 16),
     subplot_kw={"projection": ccrs.PlateCarree()},
     panel_labels={
         "row": row_titles,

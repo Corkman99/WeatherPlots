@@ -16,7 +16,9 @@ def prep_data(
     ds: xr.Dataset,
     variables: Union[List[str], Dict[str, str]],
     levels: Optional[List[int]],
-    region: Optional[Tuple[float, float, float, float]],
+    region: Optional[
+        Tuple[Optional[float], Optional[float], Optional[float], Optional[float]]
+    ],
     time_range: Union[Tuple[Optional[int], Optional[int]], List[int]],
     transform: Optional[Dict[str, Callable]] = None,
     reduce: Optional[Dict[str, Callable]] = None,
@@ -73,6 +75,16 @@ def prep_data(
     if isinstance(variables, dict):
         ds = ds.rename(variables)
 
+    # Remove level dimension if needed:
+    if levels is not None:
+        for var in ds.data_vars:
+            if "level" in ds[var].dims:
+                for level in levels:
+                    name = f"{var}{level}"
+                    dims = [x for x in ds[var].dims if x != "level"]
+                    ds[name] = (dims, ds[var].sel(level=level, drop=True).data)
+                ds = ds.drop_vars([var])
+        ds = ds.drop_dims("level")
     return ds.squeeze()
 
 
