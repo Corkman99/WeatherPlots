@@ -191,3 +191,91 @@ def create_multi_panel_figure(
             cbar.set_label(title, fontsize=12)
 
     return fig
+
+
+def gencast_like_configs(
+    ntruth: int, noptimized: int, ngen: int, ntimesteps: list[int]
+) -> dict:
+
+    seq = ["g"] * ngen + ["o"] * noptimized + ["t"] * ntruth
+
+    truth_color = "#000000"  # or #3BC64E green
+    optimized_color = "#DE370D"
+    gen_color = "#125CC4"
+
+    truth_marker_sizes = 2
+    optimized_marker_sizes = 2
+    gen_marker_sizes = 0.5
+
+    markers = []
+    marker_sizes = []
+    alphas = []
+    for i, nt in enumerate(ntimesteps):
+        markers.append([None] * nt + ["o"])
+        if seq[i] == "t":
+            ms = truth_marker_sizes
+        elif seq[i] == "o":
+            ms = optimized_marker_sizes
+        else:
+            ms = gen_marker_sizes
+        marker_sizes.append([None] * nt + [ms])
+        alphas.append(list(np.linspace(0.25, 1, nt)))
+
+    colors = (
+        [gen_color] * ngen + [optimized_color] * noptimized + [truth_color] * ntruth
+    )
+    linewidths = [0.5] * ngen + [1] * noptimized + [1] * ntruth
+
+    return {
+        "land_color": "#E3DFBF",
+        "draw_labels": False,
+        "coastline_linewidth": 0.5,
+        "smooth": False,
+        "color": colors,
+        "marker": markers,
+        "markersize": marker_sizes,
+        "linewidth": linewidths,
+        "fillstyle": None,
+        "alpha": alphas,
+        "legend": False,
+    }
+
+
+def gencast_like_configs_color_variation(
+    ntruth: int, noptimized: int, ngen: int, ntimesteps: list[int]
+) -> dict:
+    import matplotlib.cm as cm
+
+    seq = ["g"] * ngen + ["o"] * noptimized + ["t"] * ntruth
+
+    # truth_color = "#000000"  # or #3BC64E green
+    # optimized_color = "#DE370D"
+    # gen_color = "#125CC4"
+
+    truth_cmap = "Greys"
+    optim_cmap = "Reds"
+    gen_cmap = "Blues"
+
+    markers = [None] * len(seq)
+    marker_sizes = [None] * len(seq)
+    alphas = [1.0] * len(seq)
+    colors = [gen_cmap] * ngen + [optim_cmap] * noptimized + [truth_cmap] * ntruth
+    linewidths = [0.5] * ngen + [1] * noptimized + [1] * ntruth
+
+    dict = {
+        "legend": False,
+        "plot_kwargs": {
+            "land_color": "#E3DFBF",
+            "draw_labels": False,
+            "coastline_linewidth": 0.5,
+            "smooth": False,
+            "color": colors,
+            "cmap": True,
+            "marker": markers,
+            "markersize": marker_sizes,
+            "linewidth": linewidths,
+            "alpha": alphas,
+            "fillstyle": None,
+        },
+    }
+    return dict

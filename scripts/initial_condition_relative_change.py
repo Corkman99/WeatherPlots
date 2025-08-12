@@ -1,6 +1,8 @@
 import sys
 import os
 
+# TODO: Revise this code, the image is always the same and this is concerning
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from panels import *
@@ -16,8 +18,6 @@ import os
 
 HOME = os.environ["HOME"]
 
-save_path = HOME + "/WeatherPlots/HurricaneIan_GC-OP/IC_relative_per_variable.png"
-
 time_axis = [
     np.datetime64("2022-09-26T00:00:00") + np.timedelta64(6 * x, "h") for x in range(16)
 ]
@@ -25,11 +25,11 @@ time_axis = [
 # Dataset definitions:
 # Load datasets from ~/GenCast/DATA/GraphCast_OP/Hurricane_Ian_GC-OP
 optimal_IC = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/optim_noprecip_1e4_ep80",
+    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/AMSE/optim_noprecip_1e-3",
     pattern="optimized-inputs_ep-*.nc",
 )
 optimal_F = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/optim_noprecip_1e4_ep80",
+    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/AMSE/optim_noprecip_1e-3",
     pattern="regional_ep-*.nc",
 )
 
@@ -164,8 +164,8 @@ skill_scores_local = xr.apply_ufunc(
 # one row per variable, one column per epoch
 # plot map of rel_diff_per_epoch, title with skill_scores_global and skill_scores_local
 
-variables = ["mslp"]  # ["t2m", "mslp", "uv10"]
-epochs = [4]  # , 19, 49, 79]
+variables = ["mslp", "t2m", "uv10"]
+epochs = [4, 9]  # , 19, 49, 79]
 
 
 region_wide = (10, -110 + 360, 40, -54 + 360)
@@ -208,6 +208,9 @@ fig = create_multi_panel_figure(
 )
 
 
-save_path = HOME + "/WeatherPlots/HurricaneIan_GC-OP/IC_relative_per_variable_small.png"
+save_path = (
+    HOME + "/WeatherPlots/HurricaneIan_GC-OP/AMSE/IC_relative_per_variable_1e-3.png"
+)
+
 plt.tight_layout()
 plt.savefig(save_path)

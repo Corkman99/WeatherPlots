@@ -16,8 +16,6 @@ import os
 
 HOME = os.environ["HOME"]
 
-save_path = HOME + "/WeatherPlots/HurricaneIan_GC-OP/optimal_noprecip_leadtime.png"
-
 time_axis = [
     np.datetime64("2022-09-26T00:00:00") + np.timedelta64(6 * x, "h") for x in range(16)
 ]
@@ -25,17 +23,17 @@ time_axis = [
 # Dataset definitions:
 # Load datasets from ~/GenCast/DATA/GraphCast_OP/Hurricane_Ian_GC-OP
 pattern = "regional_ep-*.nc"
-optimal_track_14 = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/optim_noprecip_1e4_ep80",
+original = merge_netcdf_files(
+    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/hurricane-ian_optimal_verylocal_1e-4_14step",
     pattern=pattern,
 )
-optimal_track_8 = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/optim_noprecip_1e-4_8step",
+original_amse = merge_netcdf_files(
+    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/AMSE/optim_noprecip_1e-3",
     pattern=pattern,
 )
-optimal_track_4 = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/optim_noprecip_1e-4_4step",
-    pattern=pattern,
+optimized_amse = merge_netcdf_files(
+    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/AMSE-Optim",
+    pattern="optimized-outputs_ep-*.nc",
 )
 
 # miami_track = merge_netcdf_files(
@@ -60,14 +58,14 @@ variables = {
     "10m_u_component_of_wind": "u10",
     "10m_v_component_of_wind": "v10",
     "mean_sea_level_pressure": "mslp",
-    # "geopotential": "z500",
-    # "temperature": "t500",
+    "geopotential": "z",
+    "temperature": "t",
     # "u_component_of_wind": "u1000",
     # "v_component_of_wind": "v1000",
     "total_precipitation_6hr": "tp",
 }
-plevels = None  # [500]
-times = [-4, -3, -2, -1]
+plevels = [500]
+times = [0, 1]
 
 
 def to_degreeC(x):
@@ -102,8 +100,8 @@ def wrapped_prep_data(
         times,
         transform={
             "mean_sea_level_pressure": to_hPa,
-            # "geopotential": to_geopotentialheight,
-            # "temperature": to_degreeC,
+            "geopotential": to_geopotentialheight,
+            "temperature": to_degreeC,
             "2m_temperature": to_degreeC,
         },
     )
@@ -111,39 +109,23 @@ def wrapped_prep_data(
     return prepped_with_wind
 
 
-optimal_track_14 = wrapped_prep_data(optimal_track_14).squeeze()
-original_14 = optimal_track_14.sel(epoch=0, drop=True)
-optimal_14 = optimal_track_14.sel(epoch=79, drop=True)
-optimal_track_8 = wrapped_prep_data(optimal_track_8).squeeze()
-original_8 = optimal_track_8.sel(epoch=0, drop=True)
-optimal_8 = optimal_track_8.sel(epoch=9, drop=True)
-optimal_track_4 = wrapped_prep_data(optimal_track_4).squeeze()
-original_4 = optimal_track_4.sel(epoch=0, drop=True)
-optimal_4 = optimal_track_4.sel(epoch=9, drop=True)
+original = wrapped_prep_data(original).squeeze().sel(epoch=0, drop=True)
 
-# miami_track = wrapped_prep_data(miami_track).squeeze().sel(epoch=19, drop=True)
-# tallahassee_track = (
-#    wrapped_prep_data(tallahassee_track).squeeze().sel(epoch=19, drop=True)
-# )
+original_amse = wrapped_prep_data(original_amse).squeeze()
+original_amse = original_amse.sel(epoch=0, drop=True)
+
+optimized_amse = wrapped_prep_data(optimized_amse).squeeze()
+optimized_amse = optimized_amse.sel(epoch=0, drop=True)
 
 hres = wrapped_prep_data(hres).squeeze()
-hres = hres.assign_coords(time=original_4.time.values)
+hres = hres.assign_coords(time=original_amse.time.values)
 
 # Define plotting specifications
 title = "Hurricane Ian - HRES-fc0 Landfall at 2022-09-28 18z"
 
 # Plotting items
-dats = [
-    hres,
-    original_14,
-    optimal_14,
-    original_8,
-    optimal_8,
-    original_4,
-    optimal_4,
-    # miami_track,
-    # tallahassee_track,
-]
+dats = [hres, original, original_amse, optimized_amse]
+
 
 # Plotting specs:
 cmap = "coolwarm"
@@ -173,12 +155,12 @@ contour = {
     "specs": {"colors": "grey", "levels": np.arange(80, 160, 20), "label": True},
 }
 contour = {
-    "variable": "z500",
-    "specs": {"colors": "grey", "levels": np.arange(5500, 6200, 100), "label": True},
-}
-contour = {
     "variable": "tp",
     "specs": {"colors": "black", "levels": np.arange(1e-6, 1e-2, 2e-3), "label": True},
+}
+contour = {
+    "variable": "z500",
+    "specs": {"colors": "grey", "levels": np.arange(5500, 6200, 100), "label": True},
 }
 contour = {
     "variable": "mslp",
@@ -210,16 +192,9 @@ for dat in dats:
 column_titles = [str(6 * (x + 5)) for x in times]
 row_titles = [
     "HRES-fc0",
-    "Original 14step",
-    "Optimized 14step (ep80)",
-    "Original 8step",
-    "Optimized 8step (ep10)",
-    "Original 4step",
-    "Optimized 4step (ep10)",
-    # "Miami Target (ep20)",
-    # "Tallahassee (ep20)",
-    # "Origianl 10step",
-    # "Optimized 10step (ep50)",
+    "Original",
+    "Original AMSE",
+    "Optimized AMSE",
 ]
 
 """
@@ -239,7 +214,7 @@ fig = create_multi_panel_figure(
     maps,
     nrows=len(dats),
     ncols=len(times),
-    figsize=(12, 16),
+    figsize=(18, 12),
     subplot_kw={"projection": ccrs.PlateCarree()},
     panel_labels={
         "row": row_titles,
@@ -251,5 +226,5 @@ fig = create_multi_panel_figure(
 )
 
 plt.tight_layout()
-# plt.subplots_adjust(bottom=0.1)
+save_path = HOME + "/WeatherPlots/HurricaneIan_GC-OP/AMSE/amse-optim_uv10_mslp.png"
 plt.savefig(save_path)

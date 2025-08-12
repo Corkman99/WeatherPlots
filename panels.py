@@ -1,4 +1,4 @@
-from typing import Union, Dict, Optional, Callable, List, Tuple
+from typing import Union, Dict, Optional, Callable, List, Tuple, Any
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -288,14 +288,63 @@ def plot_temporal_vertical_profile(
     return ax
 
 
+def colored_line_between_pts(x, y, c, ax, **lc_kwargs):
+    """
+    Copied from: https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html
+
+    Plot a line with a color specified between (x, y) points by a third value.
+
+    It does this by creating a collection of line segments between each pair of
+    neighboring points. The color of each segment is determined by the
+    made up of two straight lines each connecting the current (x, y) point to the
+    midpoints of the lines connecting the current point with its two neighbors.
+    This creates a smooth line with no gaps between the line segments.
+
+    Parameters
+    ----------
+    x, y : array-like
+        The horizontal and vertical coordinates of the data points.
+    c : array-like
+        The color values, which should have a size one less than that of x and y.
+    ax : Axes
+        Axis object on which to plot the colored line.
+    **lc_kwargs
+        Any additional arguments to pass to matplotlib.collections.LineCollection
+        constructor. This should not include the array keyword argument because
+        that is set to the color argument. If provided, it will be overridden.
+
+    Returns
+    -------
+    matplotlib.collections.LineCollection
+        The generated line collection representing the colored line.
+    """
+    from matplotlib.collections import LineCollection
+
+    # Create a set of line segments so that we can color them individually
+    # This creates the points as an N x 1 x 2 array so that we can stack points
+    # together easily to get the segments. The segments array for line collection
+    # needs to be (numlines) x (points per line) x 2 (for x and y)
+    points = np.array([x, y]).T.reshape(-1, 1, 2)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+    lc = LineCollection(segments, colors=c, **lc_kwargs)
+    # Set the values used for colormapping
+    # lc.set_array(c)
+
+    return ax.add_collection(lc)
+
+
 def plot_tropical_hurricane_track(
-    ax: Union[Axes, GeoAxes],
-    ds: List[Union[xr.Dataset, xr.DataArray]],
-    region: Tuple[float, float, float, float],
+    ax: GeoAxes,
+    ds: Tuple[Union[xr.Dataset, xr.DataArray], ...],
+    search_region: Tuple[float, float, float, float],
+    plot_region: Tuple[float, float, float, float],
     title: Optional[str] = None,
     legend: bool = True,
-    **plot_kwargs,
+    plot_kwargs: Dict[str, Any] = {},
 ):
+    from matplotlib.colors import LinearSegmentedColormap
+    import matplotlib.cm as cm
+
     def _extract_hurricane_centers(mslp, minlat, minlon, maxlat, maxlon):
         subregion = mslp.sel(lat=slice(minlat, maxlat), lon=slice(minlon, maxlon))
         min_coords = []
@@ -324,51 +373,92 @@ def plot_tropical_hurricane_track(
             var_name = list(d.data_vars)[0]
             d = d[var_name]
         centers.append(
-            _extract_hurricane_centers(d, region[0], region[1], region[2], region[3])
+            _extract_hurricane_centers(
+                d,
+                search_region[0],
+                search_region[1],
+                search_region[2],
+                search_region[3],
+            )
         )
 
     # plot_kwargs are lists of colors, markers, labels, alpha, etc. Set defaults if not provided
+
+    num_timesteps = [len(center) for center in centers]
+    n = len(centers)
+
     if "color" not in plot_kwargs:
-        # default is tab10 colors
-        plot_kwargs["color"] = [
-            "tab:blue",
-            "tab:orange",
-            "tab:green",
-            "tab:red",
-            "tab:purple",
-            "tab:brown",
-        ][: len(centers)]
-    if "marker" not in plot_kwargs:
-        plot_kwargs["marker"] = ["o"] * n  # default is all the same markers
-    if "label" not in plot_kwargs:
-        # default labels are Dataset 1, Dataset 2, etc.
-        plot_kwargs["label"] = [f"Dataset {i+1}" for i in range(n)]
-    if "markersize" not in plot_kwargs:
-        plot_kwargs["markersize"] = [5] * n  # default markersize
+        c = cm.get_cmap("Paired", n)
+        plot_kwargs["color"] = [c(x) for x in range(n)]
+        plot_kwargs["cmap"] = False
     if "alpha" not in plot_kwargs:
-        plot_kwargs["alpha"] = [0.7] * n  # default alpha
+        plot_kwargs["alpha"] = [1.0] * n
+    if "marker" not in plot_kwargs:
+        plot_kwargs["marker"] = ["o"] * n
+    if "markersize" not in plot_kwargs:
+        plot_kwargs["markersize"] = [1] * n
+    if "label" not in plot_kwargs:
+        plot_kwargs["label"] = [f"Dataset {i+1}" for i in range(n)]
+    if "linestyle" not in plot_kwargs:
+        plot_kwargs["linestyle"] = ["-"] * n
+    if "linewidth" not in plot_kwargs:
+        plot_kwargs["linewidth"] = [1] * n
 
     if isinstance(ax, GeoAxes):
         ax.set_extent(
-            [region[1], region[3], region[0], region[2]], crs=ccrs.PlateCarree()
+            [plot_region[1], plot_region[3], plot_region[0], plot_region[2]],
+            crs=ccrs.PlateCarree(),
         )
-        ax.coastlines()
+        ax.coastlines(linewidth=plot_kwargs.get("coastline_linewidth", 1))
         ax.add_feature(cfeature.BORDERS, linestyle=":")
-        ax.add_feature(cfeature.LAND, facecolor="lightgray")
-        ax.gridlines(draw_labels=True)
+        ax.add_feature(
+            cfeature.LAND, facecolor=plot_kwargs.get("land_color", "lightgray")
+        )
+        ax.gridlines(draw_labels=plot_kwargs.get("draw_labels", True))
 
     for i, center in enumerate(centers):
         lons, lats = zip(*center)
-        ax.plot(
-            lons,
-            lats,
-            marker=plot_kwargs["marker"][i],
-            color=plot_kwargs["color"][i],
-            markersize=plot_kwargs["markersize"][i],
-            alpha=plot_kwargs["alpha"][i],
-            label=plot_kwargs["label"][i],
-            transform=ccrs.PlateCarree(),
-        )
+        if plot_kwargs.get("smooth", False):
+            from scipy.signal import savgol_filter
+
+            lons = savgol_filter(
+                lons, window_length=plot_kwargs.get("smoothing_window", 7), polyorder=3
+            )
+            lats = savgol_filter(
+                lats, window_length=plot_kwargs.get("smoothing_window", 7), polyorder=3
+            )
+
+        if plot_kwargs["cmap"]:
+            color_spec = cm.get_cmap(plot_kwargs["color"][i])
+            col = [color_spec(j) for j in np.linspace(0, 1, len(lons) - 1)]
+            line = colored_line_between_pts(
+                lons,
+                lats,
+                col,
+                ax,
+                # marker=plot_kwargs["marker"][i],
+                # markersize=plot_kwargs["markersize"][i],
+                label=plot_kwargs["label"][i],
+                # fillstyle=plot_kwargs.get("fillstyle", "none"),
+                linestyle=plot_kwargs["linestyle"][i],
+                linewidth=plot_kwargs["linewidth"][i],
+                alpha=plot_kwargs["alpha"][i],
+                transform=ccrs.PlateCarree(),
+            )
+        else:
+            ax.plot(
+                lons,
+                lats,
+                marker=plot_kwargs["marker"][i],
+                color=plot_kwargs["color"][i],
+                markersize=plot_kwargs["markersize"][i],
+                label=plot_kwargs["label"][i],
+                fillstyle=plot_kwargs.get("fillstyle", "none"),
+                linestyle=plot_kwargs["linestyle"][i],
+                linewidth=plot_kwargs["linewidth"][i],
+                alpha=plot_kwargs["alpha"][i],
+                transform=ccrs.PlateCarree(),
+            )
 
     if legend:
         ax.legend(loc="upper right")
@@ -383,6 +473,7 @@ def plot_timeseries_losses(
     ds: np.ndarray,
     stride: Optional[int] = 5,
     title: Optional[str] = None,
+    **kwargs: dict,
 ):
     """
     Input is a 2D np array. One the first axis, epoch. On the second axis, time.
@@ -392,6 +483,12 @@ def plot_timeseries_losses(
 
     if ds.ndim == 1:
         ax.plot(np.arange(0, ds.shape[0]), ds, label="Total Loss")
+        if "ylim" in kwargs:
+            assert isinstance(kwargs["ylim"], tuple) and len(kwargs["ylim"]) == 2
+            ax.set_ylim(kwargs["ylim"])
+        if "xlim" in kwargs:
+            assert isinstance(kwargs["xlim"], tuple) and len(kwargs["xlim"]) == 2
+            ax.set_xlim(kwargs["xlim"])
         ax.set_xlabel("Epoch")
         ax.set_ylabel("Loss")
         return ax
@@ -410,6 +507,12 @@ def plot_timeseries_losses(
             label=f"Epoch {i + 1}",
             alpha=0.7,
         )
+        if "ylim" in kwargs:
+            assert isinstance(kwargs["ylim"], tuple) and len(kwargs["ylim"]) == 2
+            ax.set_ylim(kwargs["ylim"])
+        if "xlim" in kwargs:
+            assert isinstance(kwargs["xlim"], tuple) and len(kwargs["xlim"]) == 2
+            ax.set_xlim(kwargs["xlim"])
 
     ax.set_xlabel("Time")
     ax.set_ylabel("Loss")
