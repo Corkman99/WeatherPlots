@@ -345,22 +345,46 @@ def plot_tropical_hurricane_track(
     from matplotlib.colors import LinearSegmentedColormap
     import matplotlib.cm as cm
 
-    def _extract_hurricane_centers(mslp, minlat, minlon, maxlat, maxlon):
+    def _extract_hurricane_centers(mslp, minlat, minlon, maxlat, maxlon, tol=20):
+        assert mslp.lat.min() <= minlat
+        assert mslp.lat.max() >= maxlat
+        assert mslp.lon.min() <= minlon
+        assert mslp.lon.max() >= maxlon
+
         subregion = mslp.sel(lat=slice(minlat, maxlat), lon=slice(minlon, maxlon))
         min_coords = []
+
         for t in subregion.time:
-            slice_t = subregion.sel(time=t, drop=True).drop_vars(
-                [v for v in subregion.coords if v not in ("lat", "lon")],
-                errors="ignore",
-            )
-            # Find the indices of the minimum value
-            min_idx = np.unravel_index(
-                np.argmin(slice_t.values, axis=None), slice_t.shape
-            )
-            # Get the corresponding lat/lon values
-            min_lat = float(slice_t.lat.values[min_idx[0]])
-            min_lon = float(slice_t.lon.values[min_idx[1]])
+            slice_t = subregion.sel(time=t, drop=True)
+
+            # Stack lat/lon into a single dimension, find the min, then map back
+            stacked = slice_t.stack(points=("lat", "lon"))
+            min_val = stacked.min("points")
+            min_points = stacked.where(stacked == min_val, drop=True)
+            indices = min_points.points.values
+            """if len(indices) > 1:
+                min_value = stacked.min()
+                min_points = slice_t.where(slice_t == min_value)
+                min_lat = float(np.mean(min_points.coords["lat"].values))
+                min_lon = float(np.mean(min_points.coords["lon"].values))
+                min_point = (min_lat, min_lon)
+            else:"""
+
+            min_point = stacked.idxmin(
+                "points"
+            ).item()  # gives a point index (lat, lon tuple)
+
+            # item() returns a tuple (lat_value, lon_value) because our index is MultiIndex
+            min_lat, min_lon = map(float, min_point)
+
+            if min_coords:
+                prev_lon, prev_lat = min_coords[-1]
+                dist = np.sqrt((min_lon - prev_lon) ** 2 + (min_lat - prev_lat) ** 2)
+                if dist > tol:
+                    min_lon, min_lat = prev_lon, prev_lat
+
             min_coords.append((min_lon, min_lat))
+
         return min_coords
 
     n = len(ds)
@@ -384,7 +408,6 @@ def plot_tropical_hurricane_track(
 
     # plot_kwargs are lists of colors, markers, labels, alpha, etc. Set defaults if not provided
 
-    num_timesteps = [len(center) for center in centers]
     n = len(centers)
 
     if "color" not in plot_kwargs:
@@ -414,7 +437,9 @@ def plot_tropical_hurricane_track(
         ax.add_feature(
             cfeature.LAND, facecolor=plot_kwargs.get("land_color", "lightgray")
         )
-        ax.gridlines(draw_labels=plot_kwargs.get("draw_labels", True))
+
+        if plot_kwargs.get("grid", False):
+            ax.gridlines(draw_labels=plot_kwargs.get("draw_labels", True))
 
     for i, center in enumerate(centers):
         lons, lats = zip(*center)
@@ -465,7 +490,7 @@ def plot_tropical_hurricane_track(
     if title:
         ax.set_title(title)
 
-    return ax
+    return ax, centers
 
 
 def plot_timeseries_losses(

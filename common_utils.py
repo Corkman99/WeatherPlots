@@ -229,6 +229,7 @@ def gencast_like_configs(
     return {
         "land_color": "#E3DFBF",
         "draw_labels": False,
+        "grid": False,
         "coastline_linewidth": 0.5,
         "smooth": False,
         "color": colors,
@@ -267,6 +268,7 @@ def gencast_like_configs_color_variation(
         "plot_kwargs": {
             "land_color": "#E3DFBF",
             "draw_labels": False,
+            "grid": False,
             "coastline_linewidth": 0.5,
             "smooth": False,
             "color": colors,

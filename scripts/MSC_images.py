@@ -9,21 +9,31 @@ import xarray as xr
 import pandas as pd
 import cartopy.crs as ccrs
 
-save_path = "MSC/MSC_tracks_v2.png"
 home = os.path.expanduser("~")
 
 # TRUTH:
-truth = xr.open_dataset(
-    os.path.join(
-        home,
-        "scratch/Data/GraphCast_OP/custom-hres_2022-09-26_res-0.25_levels-13_steps-16.nc",
+truth = (
+    xr.open_dataset(
+        os.path.join(
+            home,
+            "scratch/Data/GraphCast_OP/custom-hres_2022-09-23_res-0.25_levels-13_steps-24.nc",
+        )
     )
-).isel(time=slice(4, None))
+    .squeeze()
+    .isel(time=slice(3, None))
+)
 
 # GENCAST:
-gencast = xr.open_dataset(
-    os.path.join(home, "scratch/GenCast/HurricaneIan/run0-3.nc")
-).squeeze()
+gencast = (
+    xr.open_dataset(
+        os.path.join(
+            home,
+            "scratch/GenCast/HurricaneIan/init-22092025T12-23092025T00_end-29092025T00_10mem_A.nc",
+        )
+    )
+    .squeeze()
+    .isel(time=slice(None, None))
+)
 gencast = gencast.rename({"sample": "batch"})
 
 # GRAPHCAST TRACKS
@@ -33,17 +43,25 @@ miami_track = merge_netcdf_files(
         home, "scratch/GraphCast-OP_TC_5day/date-20250704_hurricane-ian_target-miami"
     ),
     pattern=pattern,
-)
-tallahassee_track = merge_netcdf_files(
-    os.path.join(
-        home,
-        "scratch/GraphCast-OP_TC_5day/date-20250704_hurricane-ian_target-tallahassee",
-    ),
+).isel(time=slice(None, None))
+
+miami_track2 = merge_netcdf_files(
+    os.path.join(home, "scratch/GraphCast-OP_TC_6day/miami-track_1e-3_12step"),
     pattern=pattern,
 )
 
+# tallahassee_track = merge_netcdf_files(
+#    os.path.join(
+#        home,
+#        "scratch/GraphCast-OP_TC_6day/freeport-track_1e-3",
+#    ),
+#    pattern=pattern,
+# ).isel(time=slice(1, None))
+# tallahassee_track = xr.merge([truth.isel(time=[1, 2]), tallahassee_track])
+
+
 # Dataset preparations:
-search_region = (0, -100 + 360, 40, -70 + 360)  # 14, 250, 35, 286
+search_region = (10, -92 + 360, 30.5, -65 + 360)  # 14, 250, 35, 286
 variables = {
     # "2m_temperature": "t2m",
     # "10m_u_component_of_wind": "u10",
@@ -99,39 +117,120 @@ def wrapped_prep_data(
     return prepped  # prepped_with_wind
 
 
+gencast_input_timedeltas = [np.timedelta64(-12, "h"), np.timedelta64(0, "h")]
+graphcast_input_timedeltas = [np.timedelta64(-6, "h"), np.timedelta64(0, "h")]
+
 truth = wrapped_prep_data(truth).squeeze()
 miami_track = wrapped_prep_data(miami_track).squeeze()
 # graphcast_original = miami_track.isel(epoch=0, drop=True)
-miami = miami_track.isel(epoch=-1, drop=True)
+miami = miami_track.sel(epoch=9, drop=True)
 
-tallahassee = wrapped_prep_data(tallahassee_track).squeeze().isel(epoch=-1, drop=True)
+miami_track2 = wrapped_prep_data(miami_track2).squeeze()
+miami2 = miami_track2.sel(epoch=4, drop=True)
+
+# tallahassee_track = wrapped_prep_data(tallahassee_track).squeeze()
+# tallahassee = tallahassee_track.sel(epoch=9, drop=True)
+
+miami = xr.merge(
+    [
+        truth.isel(time=[8, 9])
+        .expand_dims(batch=1)
+        .assign_coords(time=graphcast_input_timedeltas),
+        miami,
+    ]
+)
+
+miami2 = xr.merge(
+    [
+        truth.isel(time=[8, 9])
+        .expand_dims(batch=1)
+        .assign_coords(time=graphcast_input_timedeltas),
+        miami2,
+    ]
+)
+
+# tallahassee = wrapped_prep_data(tallahassee_track).squeeze().isel(epoch=-1, drop=True)
 
 gencast = wrapped_prep_data(gencast, precip_name="total_precipitation_12hr").squeeze()
+gencast = gencast.isel(batch=[i for i in gencast.batch.values if i not in [12, 15]])
 num_gencast = gencast.sizes["batch"]
+
+# mslp_mins = gencast["mslp"].isel(time=-1).min(dim=["lat", "lon"])
+
+gencast = xr.merge(
+    [
+        truth.isel(time=[0, 2])
+        .expand_dims(batch=num_gencast)
+        .assign_coords(time=gencast_input_timedeltas),
+        gencast,
+    ]
+)
+
 
 # Define plotting specifications
 title = "Hurricane Ian - Landfall 2022-09-28 18z"
 
 # Plotting items
 maps = []
-dats = tuple(
-    [gencast.sel(batch=x) for x in range(num_gencast)] + [miami, tallahassee, truth]
-)
+dats = [gencast.isel(batch=x) for x in [13]] + [  # range(num_gencast)] + [
+    miami,
+    miami2,
+    # tallahassee,
+    truth,
+]  # , truth]
 
 configs = gencast_like_configs_color_variation(
     1, 2, num_gencast, [x.sizes["time"] for x in dats]
 )
 
-plot_region = (18, -85 + 360, 30, -75 + 360)  # 14, 250, 35, 286
+plot_region = (12, -90 + 360, 30, -72 + 360)  # 14, 250, 35, 286
 fig, ax = plt.subplots(subplot_kw={"projection": ccrs.PlateCarree()}, figsize=(10, 8))
-ax = plot_tropical_hurricane_track(
+ax, centers = plot_tropical_hurricane_track(
     ax,
     dats,
     search_region=search_region,
     plot_region=plot_region,
-    title=title,
+    # title=title,
     **configs,
 )
+
+
+def identify_worst_track(centers):
+    running_max = 0
+    running_index = 0
+    for i, data in enumerate(centers):
+        last = data[-1]
+        if running_max < last[1]:
+            running_max = last[1]
+            running_index = i
+
+    return running_index
+
+
+def identify_best_track(center1, center2):
+    def _loss(center1, center2):
+        assert len(center1) == len(
+            center2
+        ), f"Length mismatch: len(center1)={len(center1)}, len(center2)={len(center2)}"
+        sum = 0
+        for i in range(len(center1)):
+            sum += np.sqrt(
+                (center1[i][0] - center2[i][0]) ** 2
+                + (center1[i][1] - center2[i][1]) ** 2
+            )
+        return sum
+
+    return _loss(center1, center2)
+
+
+"""center_truth = centers[-1][slice(3, None, 2)]
+best_loss = np.inf
+best_id = 0
+for i in range(num_gencast):
+    x = identify_best_track(center_truth, centers[i])
+    if x < best_loss:
+        best_loss = x
+        best_id = i"""
 
 
 # Add legend
@@ -139,15 +238,16 @@ import matplotlib.lines as mlines
 
 legend_handles = [
     mlines.Line2D([], [], color="black", label="Truth", linewidth=3),
-    mlines.Line2D([], [], color="blue", label="GenCast", linewidth=3),
-    mlines.Line2D([], [], color="red", label="Customized track", linewidth=3),
+    mlines.Line2D([], [], color="blue", label="AI Ensemble Forecast", linewidth=3),
+    mlines.Line2D([], [], color="red", label="Customized AI track", linewidth=3),
 ]
 ax.legend(
     handles=legend_handles,
-    loc="center left",
-    bbox_to_anchor=(1, 0.5),
-    fontsize=12,
+    loc="lower center",
+    # bbox_to_anchor=(1, 0.5),
+    fontsize=10,
     frameon=False,
+    ncols=3,
 )
 
 # Add Miami, Tallahassee, Freeport markers
@@ -156,19 +256,22 @@ annotations = [
         "label": "Miami",
         "coords": (-80.166, 25.773),
         "color": "black",
-        "marker": 8,
+        "marker": 4,
+        "offset": [+0.25, -0.175],
     },
     {
         "label": "Freeport",
         "coords": (-78.77, 26.52),
         "color": "black",
         "marker": 7,
+        "offset": [-0.85, +0.3],
     },
     {
         "label": "Tampa",
         "coords": (-82.507860, 27.908182),
         "color": "black",
-        "marker": 8,
+        "marker": 5,
+        "offset": [-1.55, -0.17],
     },
 ]
 for spec in annotations:
@@ -177,15 +280,28 @@ for spec in annotations:
         spec["coords"][1],
         marker=spec["marker"],
         color=spec["color"],
-        markersize=10,
+        markersize=6,
     )
     ax.text(
-        spec["coords"][0],
-        spec["coords"][1] + 0.1,
+        spec["coords"][0] + spec["offset"][0],
+        spec["coords"][1] + spec["offset"][1],
         spec["label"],
         color=spec["color"],
-        fontsize=12,
+        fontsize=10,
     )
 
-ax.plot()
-plt.savefig(save_path)
+
+colors = ["blue"] * num_gencast + ["red", "black"]
+sizes = [10] * num_gencast + [30, 30]  # gencast, optimized, truth
+for i, data in enumerate(centers):
+    ax.scatter(
+        data[-1][0],
+        data[-1][1],
+        marker="o",
+        s=sizes[i],  # Set marker size
+        facecolors="none",  # Empty circle
+        edgecolors=colors[i],
+    )
+
+save_path = "MSC/Ian_tracks_more.png"
+plt.savefig(save_path, dpi=300, bbox_inches="tight")
