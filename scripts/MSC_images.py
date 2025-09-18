@@ -46,7 +46,7 @@ miami_track = merge_netcdf_files(
 ).isel(time=slice(None, None))
 
 miami_track2 = merge_netcdf_files(
-    os.path.join(home, "scratch/GraphCast-OP_TC_6day/miami-track_1e-3_12step"),
+    os.path.join(home, "scratch/GraphCast-OP_TC_6day/freeport-track_1e-3_12step"),
     pattern=pattern,
 )
 

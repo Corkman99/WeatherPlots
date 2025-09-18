@@ -11,17 +11,19 @@ from pandas import Index
 import glob
 import re
 
+import spectrum
 
 def prep_data(
     ds: xr.Dataset,
-    variables: Union[List[str], Dict[str, str]],
-    levels: Optional[List[int]],
+    variables: Optional[Union[List[str], Dict[str, str]]] = None,
+    levels: Optional[List[int]] = None,
     region: Optional[
         Tuple[Optional[float], Optional[float], Optional[float], Optional[float]]
-    ],
-    time_range: Union[Tuple[Optional[int], Optional[int]], List[int]],
+    ] = None,
+    time_range: Union[Tuple[Optional[int], Optional[int]], List[int]] = (None, None),
     transform: Optional[Dict[str, Callable]] = None,
     reduce: Optional[Dict[str, Callable]] = None,
+    remove_levels: bool = True,
 ) -> xr.Dataset:
     """
     Prepares an xarray Dataset by subselecting variables, levels, region, and time,
@@ -40,12 +42,13 @@ def prep_data(
     - xarray.Dataset: processed dataset
     """
 
-    # Handle variable subselection
-    if isinstance(variables, dict):
-        variable_names = list(variables.keys())
-    else:
-        variable_names = variables
-    ds = ds[variable_names]
+    if variables is not None:
+        # Handle variable subselection
+        if isinstance(variables, dict):
+            variable_names = list(variables.keys())
+        else:
+            variable_names = variables
+        ds = ds[variable_names]
 
     # Subselect levels
     if levels is not None:
@@ -56,10 +59,11 @@ def prep_data(
         minlat, minlon, maxlat, maxlon = region
         ds = ds.sel(lat=slice(minlat, maxlat), lon=slice(minlon, maxlon))
 
-    if isinstance(time_range, Tuple):
-        ds = ds.isel(time=slice(*time_range))
-    else:
-        ds = ds.isel(time=time_range)
+    if time_range is not None:
+        if isinstance(time_range, Tuple):
+            ds = ds.isel(time=slice(*time_range))
+        else:
+            ds = ds.isel(time=time_range, drop=False)
 
     # Apply transformations if any
     if transform:
@@ -76,7 +80,7 @@ def prep_data(
         ds = ds.rename(variables)
 
     # Remove level dimension if needed:
-    if levels is not None:
+    if levels is not None and remove_levels:
         for var in ds.data_vars:
             if "level" in ds[var].dims:
                 for level in levels:
@@ -85,7 +89,7 @@ def prep_data(
                     ds[name] = (dims, ds[var].sel(level=level, drop=True).data)
                 ds = ds.drop_vars([var])
         ds = ds.drop_dims("level")
-    return ds.squeeze()
+    return ds.squeeze("batch")
 
 
 def merge_netcdf_files(path: str, pattern: str, dim_name: str = "epoch") -> xr.Dataset:
@@ -281,3 +285,59 @@ def gencast_like_configs_color_variation(
         },
     }
     return dict
+
+
+# From graphcast.losses
+def normalized_latitude_weights(data: xr.DataArray, res) -> xr.DataArray:
+    latitude = data.coords["lat"]
+    weights = _weight_for_latitude_vector_with_poles(latitude, res)
+    return weights / weights.mean(skipna=False)
+
+
+def _weight_for_latitude_vector_with_poles(latitude, res):
+    """Weights for uniform latitudes of the form [+- 90, ..., -+90]."""
+    if not np.isclose(np.max(latitude), 90.0) or not np.isclose(
+        np.min(latitude), -90.0
+    ):
+        raise ValueError(
+            f"Latitude vector {latitude} does not start/end at +- 90 degrees."
+        )
+    weights = np.cos(np.deg2rad(latitude)) * np.sin(np.deg2rad(res / 2))
+    # The two checks above enough to guarantee that latitudes are sorted, so
+    # the extremes are the poles
+    weights[[0, -1]] = np.sin(np.deg2rad(res / 4)) ** 2
+    return weights
+
+
+def normalized_level_weights(data: xr.DataArray) -> xr.DataArray:
+    """Weights proportional to pressure at each level."""
+    level = data.coords["level"]
+    return level / level.mean(skipna=False)
+
+
+# From graphcast-AMSE
+def get_model_coords(resolution: float):
+    model_latitude = xr.DataArray(
+        np.linspace(-90, 90, int(1 + 180 / resolution), dtype=np.float32),
+        dims="lat",
+    )
+    model_latitude = model_latitude.assign_coords({"lat": model_latitude})
+    model_longitude = xr.DataArray(
+        np.linspace(
+            0,
+            360 - resolution,
+            int(360 / resolution),
+            dtype=np.float32,
+        ),
+        dims="lon",
+    )
+    model_longitude = model_longitude.assign_coords({"lon": model_longitude})
+    return (model_latitude, model_longitude)
+
+
+def get_weights(ds, resolution: float) -> Tuple[xr.DataArray, xr.DataArray]:
+    model_latitude, _ = get_model_coords(resolution)
+    latitude_weights = normalized_latitude_weights(model_latitude, resolution)
+    latitude_weights = latitude_weights / latitude_weights.mean()
+    level_weights = normalized_level_weights(ds)
+    return latitude_weights, level_weights

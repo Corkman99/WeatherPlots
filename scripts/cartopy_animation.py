@@ -10,6 +10,9 @@ from matplotlib.colors import BoundaryNorm
 import cartopy.crs as ccrs
 import cartopy.mpl.contour
 
+legend = False
+title = False
+
 forecast = xr.open_dataset(
     "/home/users/f/froelicm/scratch/Data/GraphCast_OP/custom-hres_2022-09-23_res-0.25_levels-13_steps-24.nc"
 )[
@@ -99,21 +102,23 @@ contour2 = axes[1].contour(
 labels2 = axes[1].clabel(contour2, inline=True, fontsize=8, fmt="%d")
 """
 
-cbar_ax = fig.add_axes([0.2, 0.1, 0.6, 0.02])  # custom position and size
-cbar = fig.colorbar(
-    mesh1,
-    cax=cbar_ax,
-    orientation="horizontal",  # ticks=[x * 5 for x in range(6)]
-)
-cbar.ax.xaxis.set_ticks_position("bottom")
-cbar.ax.xaxis.set_label_position("bottom")
-cbar.set_label("Wind speed (m/s)")
+if legend:
+    cbar_ax = fig.add_axes([0.2, 0.1, 0.6, 0.02])  # custom position and size
+    cbar = fig.colorbar(
+        mesh1,
+        cax=cbar_ax,
+        orientation="horizontal",  # ticks=[x * 5 for x in range(6)]
+    )
+    cbar.ax.xaxis.set_ticks_position("bottom")
+    cbar.ax.xaxis.set_label_position("bottom")
+    cbar.set_label("Wind speed (m/s)")
 
 main_title = "Hurricane-Ian, September 2022"
 main1 = "HRES-fc0 Analysis"
 main2 = "GraphCast-Operational Forecast"
 
-fig.suptitle(main_title, fontsize=18)
+if title:
+    fig.suptitle(main_title, fontsize=18)
 axes[0].set_title(main1)
 axes[1].set_title(main2)
 
@@ -129,7 +134,7 @@ n = field2.sizes["time"]
 #    txt.remove()
 # label_texts.clear()
 
-name = "/home/users/f/froelicm/WeatherPlots/MSC/Ian_frames/ian2022_"
+name = "/home/users/f/froelicm/WeatherPlots/PhD-day_plots/Ian_frames_simple/ian2022_"
 
 
 def update_mesh(t):
@@ -138,7 +143,7 @@ def update_mesh(t):
     # Update mesh color data
     mesh1.set_array(field1.isel(time=t).values.ravel())
     mesh2.set_array(field2.isel(time=t).values.ravel())
-    plt.savefig(name + str(t) + ".png")
+    plt.savefig(name + str(t) + ".png", bbox_inches="tight")
     # Create new contours
     # c_new = ax.contour(
     #    field2["lon"],
@@ -158,9 +163,8 @@ def update_mesh(t):
 
 
 ani = FuncAnimation(fig, update_mesh, frames=range(n), interval=300)
-
 ani.save(
-    f"/home/users/f/froelicm/WeatherPlots/MSC/ian2022.png",
+    "/home/users/f/froelicm/WeatherPlots/PhD-day_plots/ian2022_animation.gif",
     dpi=300,
     writer="pillow",
 )

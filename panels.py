@@ -6,6 +6,7 @@ from matplotlib.axes import Axes
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from cartopy.mpl.geoaxes import GeoAxes
+from common_utils import get_weights
 
 """
 Plotting Functions for xarrays
@@ -113,6 +114,7 @@ def plot_map_panel(
     title: Optional[str] = None,
     projection: Optional[ccrs.Projection] = ccrs.PlateCarree(),
     legend_object: bool = True,
+    **kwargs,
 ):
     """
     Plot a map from an xarray.Dataset with optional filled contours, line contours, and arrows.
@@ -200,11 +202,14 @@ def plot_map_panel(
 
     # Add map features
     if isinstance(ax, GeoAxes):
-        ax.coastlines()
+        ax.coastlines(linewidth=kwargs.get("coastline_linewidth", 1))
         ax.set_extent(
             [ds.lon.min(), ds.lon.max(), ds.lat.min(), ds.lat.max()],
             crs=projection,
         )
+        if kwargs.get("border", False):
+            ax.add_feature(cfeature.BORDERS, linestyle=":")
+        ax.add_feature(cfeature.LAND, facecolor=kwargs.get("land_color", "lightgray"))
 
     if title is not None:
         ax.set_title(title)
@@ -563,4 +568,107 @@ def plot_variable_as_line(
     ax.set_xlabel("Time")
     ax.set_ylabel("Score")
     ax.legend()
+    return ax
+
+
+import xrft
+
+
+def plot_PSD_Coh(
+    ax: Union[Axes, GeoAxes],
+    ds: xr.Dataset,
+    ref_ds: xr.Dataset,
+    normalizations: xr.Dataset,
+    resolution: float = 0.25,
+    per_variable_weighting: Optional[Dict[str, float]] = None,
+    **plot_kwargs,
+):
+
+    if per_variable_weighting is None:
+        per_variable_weighting = {
+            "geopotential": 1.0,
+            "specific_humidity": 1.0,
+            "temperature": 1.0,
+            "u_component_of_wind": 1.0,
+            "v_component_of_wind": 1.0,
+            "vertical_velocity": 1.0,
+            "2m_temperature": 1.0,
+            "10m_u_component_of_wind": 0.1,
+            "10m_v_component_of_wind": 0.1,
+            "mean_sea_level_pressure": 0.1,
+            "total_precipitation_6hr": 0.0,
+        }
+
+    _, lvl_weights = get_weights(ds, resolution)
+
+    # Normalize
+    # mult by lat_weights is not done by authors
+    ds = ds / normalizations
+    ref_ds = ref_ds / normalizations
+
+    # Code from ChatGPT
+    per_var = []
+    for var in ds.data_vars:
+        iso_spec = xrft.isotropic_power_spectrum(
+            ds[var], dim=["lon", "lat"], scaling="density", truncate=True
+        )
+        iso_spec_ref = xrft.isotropic_power_spectrum(
+            ref_ds[var], dim=["lon", "lat"], scaling="density", truncate=True
+        )
+        iso_cross_spec = xrft.isotropic_cross_spectrum(
+            ds[var], ref_ds[var], dim=["lon", "lat"], scaling="density", truncate=True
+        )
+
+        amp_ratio = np.sqrt(np.abs(iso_spec_ref)) / np.sqrt(
+            np.abs(iso_spec)
+        )  # Amplitude ratio
+        coherence = np.real(iso_cross_spec) / np.sqrt(
+            iso_spec * iso_spec_ref
+        )  # according to paper
+
+        if "level" in iso_spec.dims:
+            amp_ratio = (amp_ratio * lvl_weights).mean(dim="level")
+            coherence = (coherence * lvl_weights).mean(dim="level")
+
+        if "time" in iso_spec.dims:
+            amp_ratio = amp_ratio.mean(dim="time")
+            coherence = coherence.mean(dim="time")
+
+        print(f"{var} ... {coherence.mean().item()}")
+        per_var.append(
+            xr.Dataset(
+                {
+                    "amp": amp_ratio * per_variable_weighting.get(str(var), 1.0),
+                    "coh": coherence * per_variable_weighting.get(str(var), 1.0),
+                }
+            )
+        )
+
+    total = xr.concat(per_var, dim="variable", join="exact").mean(
+        "variable", skipna=False
+    )
+
+    # Plotting
+    ax.plot(
+        total["freq_r"],
+        total["amp"],
+        label=f"{plot_kwargs.get("label","")} Amplitude ratio",
+        color=plot_kwargs.get("color", "k"),
+    )
+    ax.plot(
+        total["freq_r"],
+        total["coh"],
+        ls="--",
+        label=f"{plot_kwargs.get("label","")} Coherence",
+        color=plot_kwargs.get("color", "k"),
+    )
+    if plot_kwargs.get("log_axis", True):
+        ax.set_xscale("log")  # optional
+    # ax.set_xlim(1, total["freq_r"].max())
+    # ax.set_ylim(0, 1.1)
+    ax.set_xlabel(plot_kwargs.get("xlabel", "Total wavenumber"))
+    ax.set_ylabel(plot_kwargs.get("ylabel", ""))
+    if plot_kwargs.get("legend", True):
+        ax.legend()
+
     return ax

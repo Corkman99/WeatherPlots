@@ -23,18 +23,30 @@ time_axis = [
 # Dataset definitions:
 # Load datasets from ~/GenCast/DATA/GraphCast_OP/Hurricane_Ian_GC-OP
 pattern = "regional_ep-*.nc"
-original = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/hurricane-ian_optimal_verylocal_1e-4_14step",
+amse = merge_netcdf_files(
+    "/home/users/f/froelicm/scratch/AMSE/amse-with-amse-loss_steps-16",
     pattern=pattern,
 )
-original_amse = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/AMSE/optim_noprecip_1e-3",
-    pattern=pattern,
-)
-optimized_amse = merge_netcdf_files(
-    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/AMSE-Optim",
-    pattern="optimized-outputs_ep-*.nc",
-)
+
+"""gencast = (
+    xr.open_dataset(
+        os.path.join(
+            HOME,
+            "scratch/GenCast/HurricaneIan/init-22092025T12-23092025T00_end-29092025T00_10mem_A.nc",
+        )
+    )
+    .squeeze()
+    .sel(sample=8, drop=True)
+    .isel(time=-7, drop=False)
+)[["10m_u_component_of_wind", "10m_v_component_of_wind", "mean_sea_level_pressure"]]
+gencast = gencast.expand_dims("time")
+gencast = gencast.rename(
+    {
+        "10m_u_component_of_wind": "u10",
+        "10m_v_component_of_wind": "v10",
+        "mean_sea_level_pressure": "mslp",
+    }
+)"""
 
 # miami_track = merge_netcdf_files(
 #    "/home/users/f/froelicm/scratch/GraphCast-OP_TC_5day/from_raw/miami_1e-5",
@@ -47,25 +59,25 @@ optimized_amse = merge_netcdf_files(
 
 # Load HRES data
 hres = xr.open_dataset(
-    "/home/users/f/froelicm/scratch/Data/GraphCast_OP/custom-hres_2022-09-26_res-0.25_levels-13_steps-16.nc"
-)
+    "/home/users/f/froelicm/scratch/Data/GraphCast_OP/custom-hres_2022-09-23_res-0.25_levels-13_steps-24.nc"
+).isel(time=slice(-16,None))
 
 # Dataset preparations:
 region = (20, -90 + 360, 30, -74 + 360)  # 14, 250, 35, 286
 # region = (10, -125 + 360, 42, -50 + 360)
 variables = {
     "2m_temperature": "t2m",
-    "10m_u_component_of_wind": "u10",
-    "10m_v_component_of_wind": "v10",
-    "mean_sea_level_pressure": "mslp",
+    #"10m_u_component_of_wind": "u10",
+    #"10m_v_component_of_wind": "v10",
+    #"mean_sea_level_pressure": "mslp",
     "geopotential": "z",
-    "temperature": "t",
+    # "temperature": "t",
     # "u_component_of_wind": "u1000",
     # "v_component_of_wind": "v1000",
-    "total_precipitation_6hr": "tp",
+    # "total_precipitation_6hr": "tp",
 }
-plevels = [500]
-times = [0, 1]
+plevels =  [500]
+times = [3,7,11,12,13,14,15]
 
 
 def to_degreeC(x):
@@ -83,7 +95,7 @@ def to_geopotentialheight(x):
 def add_wind(
     data: xr.Dataset, var1: str = "u10", var2: str = "v10", name: str = "uv10"
 ) -> xr.Dataset:
-    data[name] = np.sqrt(data[var1] ** 2 + data[var2] ** 2)
+    data[name] = (data[var1] ** 2 + data[var2] ** 2) ** 0.5
     return data
 
 
@@ -91,7 +103,7 @@ def wrapped_prep_data(
     x: xr.Dataset, precip_name="total_precipitation_6hr"
 ) -> xr.Dataset:
     vars = variables.copy()
-    vars[precip_name] = "tp"
+    # vars[precip_name] = "tp"
     prepped = prep_data(
         x,
         vars,
@@ -99,33 +111,40 @@ def wrapped_prep_data(
         region,
         times,
         transform={
-            "mean_sea_level_pressure": to_hPa,
+            # "mean_sea_level_pressure": to_hPa,
             "geopotential": to_geopotentialheight,
-            "temperature": to_degreeC,
+            # "temperature": to_degreeC,
             "2m_temperature": to_degreeC,
         },
     )
-    prepped_with_wind = add_wind(prepped)
-    return prepped_with_wind
+    #prepped = add_wind(prepped)
+    return prepped
 
 
-original = wrapped_prep_data(original).squeeze().sel(epoch=0, drop=True)
+amse = wrapped_prep_data(amse)
 
-original_amse = wrapped_prep_data(original_amse).squeeze()
-original_amse = original_amse.sel(epoch=0, drop=True)
+# original_amse = wrapped_prep_data(original_amse).sel(epoch=0, drop=True)
 
-optimized_amse = wrapped_prep_data(optimized_amse).squeeze()
-optimized_amse = optimized_amse.sel(epoch=0, drop=True)
+# optimized_amse = wrapped_prep_data(optimized_amse).squeeze()
+# optimized_amse = optimized_amse.sel(epoch=0, drop=True)
 
-hres = wrapped_prep_data(hres).squeeze()
-hres = hres.assign_coords(time=original_amse.time.values)
+hres = wrapped_prep_data(hres)
+hres = hres.assign_coords(time=amse.time.values)
+
+# gencast = add_wind(gencast, var1="u10", var2="v10", name="uv10")
 
 # Define plotting specifications
 title = "Hurricane Ian - HRES-fc0 Landfall at 2022-09-28 18z"
 
 # Plotting items
-dats = [hres, original, original_amse, optimized_amse]
-
+dats = [
+    hres,
+    amse.sel(epoch=0),
+    amse.sel(epoch=4),
+    amse.sel(epoch=9),
+    amse.sel(epoch=19),
+    amse.sel(epoch=39),
+]  # , original_amse]
 
 # Plotting specs:
 cmap = "coolwarm"
@@ -143,12 +162,12 @@ fcontour = {
     "specs": {"cmap": cmap, "levels": np.arange(-10, 5, 0.5), "extend": extend},
 }
 fcontour = {
-    "variable": "t2m",
-    "specs": {"cmap": cmap, "levels": np.arange(16, 36, 2), "extend": extend},
+    "variable": "uv10",
+    "specs": {"cmap": cmap, "levels": np.arange(10, 30, 2), "extend": extend},
 }
 fcontour = {
-    "variable": "uv10",
-    "specs": {"cmap": cmap, "levels": np.arange(0, 30, 4), "extend": extend},
+    "variable": "t2m",
+    "specs": {"cmap": cmap, "levels": np.arange(16, 36, 2), "extend": extend},
 }
 contour = {
     "variable": "z1000",
@@ -159,12 +178,12 @@ contour = {
     "specs": {"colors": "black", "levels": np.arange(1e-6, 1e-2, 2e-3), "label": True},
 }
 contour = {
-    "variable": "z500",
-    "specs": {"colors": "grey", "levels": np.arange(5500, 6200, 100), "label": True},
-}
-contour = {
     "variable": "mslp",
     "specs": {"colors": "black", "levels": np.arange(930, 1050, 10), "label": True},
+}
+contour = {
+    "variable": "z500",
+    "specs": {"colors": "grey", "levels": np.arange(5500, 6200, 100), "label": True},
 }
 arrows = {
     "variable": ["u500", "v500"],
@@ -186,16 +205,13 @@ for dat in dats:
             # arrows=arrows,
             region=region,
             title=None,
+            land_color="#E3DFBF",
         )
         maps.append(map)
 
-column_titles = [str(6 * (x + 5)) for x in times]
-row_titles = [
-    "HRES-fc0",
-    "Original",
-    "Original AMSE",
-    "Optimized AMSE",
-]
+# column_titles = [str(6 * (x + 5)) for x in times]
+row_titles = ["HRES-fc0", "GraphCast-AMSE", "5ep", "10ep", "20ep", "40ep"]
+column_titles = ["-3days", "-2days", "-1day", "-18h", "-12h", "-6h", "landfall"]
 
 """
 norm = BoundaryNorm(boundaries=levels, ncolors=len(levels) + 1, extend=extend)
@@ -212,10 +228,12 @@ colorbar = (
 
 fig = create_multi_panel_figure(
     maps,
-    nrows=len(dats),
-    ncols=len(times),
-    figsize=(18, 12),
-    subplot_kw={"projection": ccrs.PlateCarree()},
+    nrows=6,
+    ncols=7,
+    figsize=(16, 12),
+    subplot_kw={
+        "projection": ccrs.PlateCarree(),
+    },
     panel_labels={
         "row": row_titles,
         "col": column_titles,
@@ -226,5 +244,5 @@ fig = create_multi_panel_figure(
 )
 
 plt.tight_layout()
-save_path = HOME + "/WeatherPlots/HurricaneIan_GC-OP/AMSE/amse-optim_uv10_mslp.png"
-plt.savefig(save_path)
+save_path = HOME + "/WeatherPlots/HurricaneIan_GC-OP_new/amse_z500-t2m.png"
+plt.savefig(save_path, bbox_inches="tight")
