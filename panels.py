@@ -571,7 +571,7 @@ def plot_variable_as_line(
     return ax
 
 
-import xrft
+#import xrft
 
 
 def plot_PSD_Coh(

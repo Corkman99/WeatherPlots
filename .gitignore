@@ -1,10 +1,8 @@
 *.temp
 temp.*
 
+/venv
+
 __pycache__
-/HurricaneIan_GC-OP
-/HurricaneIan_GC-OP_new
-/PhD-day_plots
-/AI_weather_models_2
-/MSC
-/plotenv
+/configs
+/outputs

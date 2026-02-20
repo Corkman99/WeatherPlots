@@ -1,46 +1,44 @@
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from panels import *
-from common_utils import *
-import xarray as xr
-import pandas as pd
-import cartopy.crs as ccrs
-from matplotlib.colors import BoundaryNorm
-from matplotlib.cm import ScalarMappable
-from matplotlib.axes import Axes
-import numpy as np
-
 import os
+
+import numpy as np
+import xarray as xr
+from common_utils import *
+from matplotlib.axes import Axes
+from panels import *
 
 HOME = os.environ["HOME"]
 
-time_axis = [
-    np.datetime64("2021-06-25T00:00:00") + np.timedelta64(6 * x, "h") for x in range(28)
-]
-
 # Dataset definitions:
-optimized = merge_netcdf_files(
+optimized = xr.open_dataset(
     os.path.join(
         HOME,
-        "scratch/GraphCast-Mini_PNWH_12day/PNWH_28step_optim",
-    ),
-    pattern="out_ep-*.nc",
+        "scratch/output/graphcast_optimization_B_for_tim/perturbed-inputs-and-forecast-20210626T12_epoch-4.nc",
+    )
+)
+
+neural_GCM = xr.open_dataset(
+    os.path.join(
+        HOME,
+        "scratch/output/graphcast_neuralGCM_input/gc_neuralGCM-perturbed-inputs-and-forecast-20210626T12_epoch-0.nc",
+    )
 )
 
 # Load ERA5
 era5 = xr.open_dataset(
     os.path.join(
         HOME,
-        "scratch/Data/GraphCast_small/graphcast_dataset_source-era5_date-2021-06-20_res-1.0_levels-13_steps-48.nc",
+        "scratch/ERA5/20210626T12-20210630T12_025_37lvl_formatted.nc",
     )
-)
+).isel(time=slice(-18, None))
 
 # Dataset preparations:
 region = (42, -130 + 360, 60, -110 + 360)
-variables = {"geopotential": "z", "2m_temperature": "t2m"}
+variables = {"geopotential": "z", "temperature": "t"}
 plevels = [1000]  # [500]
 times = (None, None)
 
@@ -75,15 +73,15 @@ def wrapped_prep_data(
         region,
         time,
         transform={
-            "2m_temperature": to_degreeC,
+            "temperature": to_degreeC,
             "geopotential": to_geopotentialheight,
         },
     )
 
 
-optimized = wrapped_prep_data(optimized, (-8, None))
-era5 = wrapped_prep_data(era5, (-8, None))
-time_axis = time_axis[slice(-8, None)]
+optimized = wrapped_prep_data(optimized, None)
+neural_GCM = wrapped_prep_data(neural_GCM, None)
+era5 = wrapped_prep_data(era5, None)
 
 
 def add_timeseries(
@@ -100,14 +98,9 @@ def add_timeseries(
     return ax
 
 
-dats = [
-    era5,
-    optimized.sel(epoch=1),
-    optimized.sel(epoch=3),
-    optimized.sel(epoch=7),
-]
+dats = [era5, optimized, neural_GCM]
 colors = ["black", "#E6653E", "#E6A401", "#A2DE04"]  # "#DED504",
-labels = ["ERA5", "GraphCast Small", "Optimized 2ep", "Optimized 8ep"]
+labels = ["ERA5", "GC (GC-optim inputs)", "GC (NGCM-optim inputs)"]
 linetypes = ["-", None, None, None, None]
 alphas = [1, 0.8, 0.8, 0.8, 0.8]
 
@@ -119,29 +112,25 @@ plot_args = [
 fig, axes = plt.subplots(
     figsize=(10, 2),
 )
-fig.suptitle("Mean over PNWH region")
+fig.suptitle("Timeseries of Mean 1000hPa Temperature over PNWH region")
 
-axes.set_ylabel("2m Temperature (°C)")
-axes.set_ylim(16, 30)
+axes.set_ylabel("°C")
+axes.set_ylim(24, 38)
 axes.grid()
 
+import datetime
+
 for dat, args in zip(dats, plot_args):
+    print(dat["t1000"].mean())
+    len = dat.sizes["time"]
     add_timeseries(
         axes,
-        dat["t2m"],
-        time_axis,
+        dat["t1000"],
+        [x for x in dats[1].coords["time"].values][-len:],
         color=args["color"],
         linestyle=args["linetype"],
         alpha=args["alpha"],
     )
-    # add_timeseries(
-    #    axes[1],
-    #    dat["z"].sel(lat=50, lon=-121 + 360, drop=True),
-    #    time_axis,
-    #    color=args["color"],
-    #    linestyle=args["linetype"],
-    #    alpha=args["alpha"],
-    # )
 
 
 import matplotlib.lines as mlines
@@ -156,12 +145,6 @@ legend_handles = [
     mlines.Line2D(
         [], [], color=colors[2], label=labels[2], linewidth=3, linestyle=linetypes[2]
     ),
-    mlines.Line2D(
-        [], [], color=colors[3], label=labels[3], linewidth=3, linestyle=linetypes[3]
-    ),
-    # mlines.Line2D(
-    #    [], [], color=colors[4], label=labels[4], linewidth=3, linestyle=linetypes[4]
-    # ),
 ]
 
 fig.legend(
@@ -173,5 +156,5 @@ fig.legend(
     ncols=5,
 )
 
-outpath = os.path.join(HOME, "WeatherPlots/PhD-day_plots/pnwh_optimized_ts.png")
+outpath = os.path.join(HOME, "WeatherPlots/outputs/pnwh_optimized_ts_b.png")
 fig.savefig(outpath, bbox_inches="tight")

@@ -1,17 +1,20 @@
-import xarray as xr
-import numpy as np
-import matplotlib.pyplot as plt
-import os
-from typing import Union, Dict, Optional, Callable, List, Tuple
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure
-from matplotlib.colors import Colormap
-from cartopy.mpl.geoaxes import GeoAxes
-from pandas import Index
 import glob
+import os
 import re
+from datetime import datetime, timedelta
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
-import spectrum
+import matplotlib.pyplot as plt
+import numpy as np
+import xarray as xr
+from cartopy.mpl.geoaxes import GeoAxes
+from matplotlib.axes import Axes
+from matplotlib.colors import Colormap
+from matplotlib.figure import Figure
+from pandas import Index
+
+# import spectrum
+
 
 def prep_data(
     ds: xr.Dataset,
@@ -89,10 +92,15 @@ def prep_data(
                     ds[name] = (dims, ds[var].sel(level=level, drop=True).data)
                 ds = ds.drop_vars([var])
         ds = ds.drop_dims("level")
-    return ds.squeeze("batch")
+
+    if "batch" in ds.dims:
+        ds = ds.squeeze("batch", drop=True)
+    return ds
 
 
-def merge_netcdf_files(path: str, pattern: str, dim_name: str = "epoch") -> xr.Dataset:
+def merge_netcdf_files(
+    path: str, pattern: str, dim_name: str = "epoch", chunked: str = "auto"
+) -> xr.Dataset:
     """
     Merges multiple NetCDF files in a directory into a single xarray Dataset.
     The index for concatenation is extracted from the integer in the filename.
@@ -119,7 +127,7 @@ def merge_netcdf_files(path: str, pattern: str, dim_name: str = "epoch") -> xr.D
     # Sort by the extracted integer
     file_tuples.sort()
     indices, sorted_files = zip(*file_tuples)
-    datasets = [xr.open_dataset(f) for f in sorted_files]
+    datasets = [xr.open_dataset(f, chunks=chunked) for f in sorted_files]
     merged_ds = xr.concat(datasets, Index(indices, name=dim_name))
     return merged_ds
 
@@ -341,3 +349,30 @@ def get_weights(ds, resolution: float) -> Tuple[xr.DataArray, xr.DataArray]:
     latitude_weights = latitude_weights / latitude_weights.mean()
     level_weights = normalized_level_weights(ds)
     return latitude_weights, level_weights
+
+
+def from_aiwm2_to_graphcast(
+    ds: xr.Dataset,
+    first_target_datetime: datetime,
+    tres: timedelta = timedelta(hours=6),
+) -> xr.Dataset:
+    """
+    Default processing of AIWM2 data to be compatible with GraphCast code.
+    Needs first_target_datetime and tres from config to compute time dimension.
+    """
+    # Rename dimensions and coordinates
+    ds = ds.rename(
+        {
+            "latitude": "lat",
+            "longitude": "lon",
+            "pressure_level": "level",
+            "valid_time": "time",
+        }
+    )
+    datetimes = [datetime.fromisoformat(str(x)) for x in ds["time"].values]
+    time = [t - (first_target_datetime - tres) for t in datetimes]
+    # reassign time dimension values
+    ds = ds.assign_coords(time=time)
+    # datetime is a coord of time dimension
+    ds = ds.assign_coords(datetime=("time", datetimes))
+    return ds
