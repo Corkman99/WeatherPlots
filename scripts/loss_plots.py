@@ -1,12 +1,12 @@
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from panels import *
-from common_utils import *
-import numpy as np
 import pickle
+
+from common_utils import *
+from panels import *
 
 dataset_names = [
     "MSE ckpt 5e-4",
@@ -38,5 +38,7 @@ fig = create_multi_panel_figure(
     figsize=(12, 8),
     panel_labels={"row": dataset_names, "col": ["Total Loss", "Per Timestep Loss"]},
 )
+
+plt.savefig(save_path, bbox_inches="tight")
 
 plt.savefig(save_path, bbox_inches="tight")

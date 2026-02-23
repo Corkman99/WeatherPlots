@@ -17,7 +17,9 @@ class ArrowSpec(BaseModel):
     @classmethod
     def validate_vector_pair(cls, value: list[str]) -> list[str]:
         if len(value) != 2:
-            raise ValueError("arrows.variable must contain exactly two variables: [u, v].")
+            raise ValueError(
+                "arrows.variable must contain exactly two variables: [u, v]."
+            )
         return value
 
 
@@ -44,7 +46,9 @@ class HurricaneMapConfig(BaseModel):
 
     figsize: tuple[int, int] = (18, 12)
     colormap_label: str = "Field"
-    colormap_position: list[float] = Field(default_factory=lambda: [0.02, 0.15, 0.02, 0.7])
+    colormap_position: list[float] = Field(
+        default_factory=lambda: [0.02, 0.15, 0.02, 0.7]
+    )
 
     @model_validator(mode="after")
     def validate_ground_truth_path(self):
@@ -53,7 +57,9 @@ class HurricaneMapConfig(BaseModel):
                 "ground_truth_path must be provided when load_ground_truth is true."
             )
         if not self.columns:
-            raise ValueError("columns must contain at least one column name to time index mapping.")
+            raise ValueError(
+                "columns must contain at least one column name to time index mapping."
+            )
         if not self.epochs:
             raise ValueError("epochs must contain at least one epoch index.")
         if any(epoch < 0 for epoch in self.epochs):

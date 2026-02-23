@@ -5,19 +5,19 @@ original forecast.
 MSE Skill Score: SS = 1 - MSE_opt / MSE_orig
 """
 
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import numpy as np
+from functools import partial
+
 import matplotlib.pyplot as plt
+import numpy as np
 import xarray as xr
 
-from panels import *
 from common_utils import *
-
-from functools import partial
+from panels import *
 
 pattern = "regional_ep-*.nc"
 optimal_track_14 = merge_netcdf_files(

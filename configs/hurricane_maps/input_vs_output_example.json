@@ -1,0 +1,80 @@
+{
+    "folder": "/home/users/f/froelicm/scratch/output/3463201",
+    "experiment_config_file": "experiment_config.json",
+    "output_file": "ian_input_vs_output_mslp.png",
+    "load_ground_truth": true,
+    "plot_ground_truth": true,
+    "ground_truth_path": "/home/users/f/froelicm/scratch/HRES-fc0/20220923_steps-24_B.nc",
+    "plot_inputs_and_outputs": true,
+    "epochs": [
+        0,
+        1,
+        2,
+        5
+    ],
+    "region": [
+        20,
+        272,
+        28,
+        284
+    ],
+    "columns": {
+        "landfall": 0
+    },
+    "fcontour": {
+        "variable": "mean_sea_level_pressure",
+        "level": null,
+        "specs": {
+            "cmap": "viridis",
+            "levels": [
+                930,
+                940,
+                950,
+                960,
+                970,
+                980,
+                990,
+                1000,
+                1010,
+                1020,
+                1030,
+                1040
+            ],
+            "extend": "both"
+        }
+    },
+    "contour": {
+        "variable": "mean_sea_level_pressure",
+        "level": null,
+        "specs": {
+            "colors": "black",
+            "levels": [
+                930,
+                940,
+                950,
+                960,
+                970,
+                980,
+                990,
+                1000,
+                1010,
+                1020,
+                1030,
+                1040
+            ],
+            "label": false
+        }
+    },
+    "land_color": "#E3DFBF",
+    "figsize": [
+        18,
+        12
+    ],
+    "colormap_label": "MSLP (hPa)",
+    "colormap_position": [
+        0.02,
+        0.15,
+        0.02,
+        0.7
+    ]
+}

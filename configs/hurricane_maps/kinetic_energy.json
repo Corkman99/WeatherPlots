@@ -1,0 +1,85 @@
+{
+    "folder": "/home/users/f/froelicm/scratch/output/new_code_mse_1step",
+    "experiment_config_file": "experiment_config.json",
+    "output_file": "ian_match_hres.png",
+    "load_ground_truth": true,
+    "plot_ground_truth": true,
+    "ground_truth_path": "/home/users/f/froelicm/scratch/HRES-fc0/ian_gt.nc",
+    "plot_inputs_and_outputs": true,
+    "epochs": [
+        0,
+        2,
+        10
+    ],
+    "region": [
+        20,
+        272,
+        28,
+        284
+    ],
+    "columns": {
+        "input_1": 0,
+        "input_2": 1,
+        "landfall": 2
+    },
+    "fcontour": {
+        "variable": "10m_kinetic_energy",
+        "level": null,
+        "specs": {
+            "cmap": "PRGn",
+            "levels": [
+                10,
+                20,
+                40,
+                60,
+                80,
+                100,
+                140,
+                160,
+                180,
+                200,
+                220,
+                240,
+                260,
+                280,
+                300,
+                320
+            ],
+            "extend": "max"
+        }
+    },
+    "contour": {
+        "variable": "mean_sea_level_pressure",
+        "level": null,
+        "specs": {
+            "colors": "black",
+            "levels": [
+                930,
+                940,
+                950,
+                960,
+                970,
+                980,
+                990,
+                1000,
+                1010,
+                1020,
+                1030,
+                1040
+            ],
+            "label": true
+        }
+    },
+    "land_color": "#E3DFBF",
+    "figsize": [
+        18,
+        12
+    ],
+    "colormap_label": "10m Kinetic Energy (J/kg)",
+    "colormap_position": [
+        0.02,
+        0.15,
+        0.02,
+        0.7
+    ]
+}

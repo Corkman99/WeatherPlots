@@ -1,20 +1,18 @@
-import sys
 import os
+import sys
 
 # TODO: Revise this code, the image is always the same and this is concerning
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from panels import *
-from common_utils import *
-import xarray as xr
-import pandas as pd
-import cartopy.crs as ccrs
-from matplotlib.colors import BoundaryNorm
-from matplotlib.cm import ScalarMappable
-import numpy as np
-
 import os
+
+import cartopy.crs as ccrs
+import numpy as np
+import xarray as xr
+
+from common_utils import *
+from panels import *
 
 HOME = os.environ["HOME"]
 
@@ -213,4 +211,5 @@ save_path = (
 )
 
 plt.tight_layout()
+plt.savefig(save_path)
 plt.savefig(save_path)

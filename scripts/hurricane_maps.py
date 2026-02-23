@@ -148,7 +148,10 @@ def build_experiment_timeline(
     data_cfg = exp_config.get("data", {})
 
     start_stamp = None
-    if "first_target_datetime" in data_cfg and data_cfg["first_target_datetime"] is not None:
+    if (
+        "first_target_datetime" in data_cfg
+        and data_cfg["first_target_datetime"] is not None
+    ):
         start_stamp = np.datetime64(data_cfg["first_target_datetime"])
 
     output_steps = int(outputs_raw.sizes.get("time", 0))

@@ -1,9 +1,8 @@
-from typing import Tuple, Union, Dict, Any, List
-
-import xarray as xr
-import numpy as np
+from typing import Any, Dict, List, Tuple, Union
 
 import matplotlib.pyplot as plt
+import numpy as np
+import xarray as xr
 
 PATHS: List[Dict[str, str]] = [
     {

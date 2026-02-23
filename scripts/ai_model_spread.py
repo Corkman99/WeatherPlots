@@ -1,13 +1,12 @@
-import xarray as xr
+import os
+from typing import List, Optional, Tuple, Union
+
+import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
+import xarray as xr
 from matplotlib import cm
 from matplotlib.colors import BoundaryNorm
-import matplotlib
-import numpy as np
-from dask.distributed import Client
-
-from typing import List, Union, Tuple, Optional
-import os
 
 
 def variance(

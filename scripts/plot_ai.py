@@ -1,8 +1,7 @@
-import xarray as xr
-import numpy as np
-
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
+import numpy as np
+import xarray as xr
 from matplotlib.colors import Normalize
 
 

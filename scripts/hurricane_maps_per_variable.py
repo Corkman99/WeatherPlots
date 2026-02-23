@@ -1,16 +1,14 @@
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from panels import *
-from common_utils import *
-import xarray as xr
-import pandas as pd
 import cartopy.crs as ccrs
-from matplotlib.colors import BoundaryNorm
-from matplotlib.cm import ScalarMappable
 import numpy as np
+import xarray as xr
+
+from common_utils import *
+from panels import *
 
 save_path = "/WeatherPlots/HurricaneIan_14step/amse_vs_original.png"
 
@@ -192,4 +190,5 @@ save_path = (
     HOME
     + "/WeatherPlots/HurricaneIan_GC-OP/AMSE/optim-amse_vs_original_relative-gain-hres.png"
 )
+plt.savefig(save_path)
 plt.savefig(save_path)

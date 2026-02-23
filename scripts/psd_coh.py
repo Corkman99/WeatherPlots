@@ -1,13 +1,12 @@
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from panels import *
-from common_utils import *
 import xarray as xr
 
-import os
+from common_utils import *
+from panels import *
 
 HOME = os.environ["HOME"]
 
@@ -88,4 +87,5 @@ axes.legend()
 
 plt.tight_layout()
 save_path = HOME + "/WeatherPlots/HurricaneIan_GC-OP_new/amse_spectral_2step.png"
+plt.savefig(save_path, bbox_inches="tight")
 plt.savefig(save_path, bbox_inches="tight")

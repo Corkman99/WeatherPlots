@@ -1,13 +1,13 @@
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from panels import plot_tropical_hurricane_track
-from common_utils import *
-import xarray as xr
-import pandas as pd
 import cartopy.crs as ccrs
+import xarray as xr
+
+from common_utils import *
+from panels import plot_tropical_hurricane_track
 
 home = os.path.expanduser("~")
 
@@ -304,4 +304,5 @@ for i, data in enumerate(centers):
     )
 
 save_path = "MSC/Ian_tracks_more.png"
+plt.savefig(save_path, dpi=300, bbox_inches="tight")
 plt.savefig(save_path, dpi=300, bbox_inches="tight")

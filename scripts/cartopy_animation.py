@@ -1,14 +1,9 @@
-import xarray as xr
-from matplotlib.animation import FuncAnimation
+import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
+import xarray as xr
+from matplotlib.animation import FuncAnimation
 from matplotlib.colors import BoundaryNorm
-
-# doesn't seem to work
-# plt.rcParams["text.usetex"] = True
-
-import cartopy.crs as ccrs
-import cartopy.mpl.contour
 
 legend = False
 title = False

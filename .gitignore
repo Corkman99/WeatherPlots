@@ -4,5 +4,4 @@ temp.*
 /venv
 
 __pycache__
-/configs
 /outputs

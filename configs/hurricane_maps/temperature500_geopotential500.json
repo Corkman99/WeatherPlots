@@ -1,0 +1,35 @@
+{
+  "folder": "/home/users/f/froelicm/scratch/output/3463201",
+  "output_file": "ian_t500_z500.png",
+  "load_ground_truth": true,
+  "plot_ground_truth": true,
+  "ground_truth_path": "/home/users/f/froelicm/scratch/HRES-fc0/20220923_steps-24_B.nc",
+  "plot_inputs_and_outputs": false,
+  "epochs": [0, 1, 2, 5],
+  "region": [20, 272, 28, 284],
+  "columns": {
+    "landfall": 0
+  },
+  "fcontour": {
+    "variable": "temperature",
+    "level": 500,
+    "specs": {
+      "cmap": "coolwarm",
+      "levels": [-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4],
+      "extend": "both"
+    }
+  },
+  "contour": {
+    "variable": "geopotential",
+    "level": 500,
+    "specs": {
+      "colors": "grey",
+      "levels": [5200, 5300, 5400, 5500, 5600, 5700, 5800, 5900],
+      "label": true
+    }
+  },
+  "land_color": "#E3DFBF",
+  "figsize": [18, 12],
+  "colormap_label": "Temperature 500 hPa",
+  "colormap_position": [0.02, 0.15, 0.02, 0.7]
+}

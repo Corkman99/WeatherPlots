@@ -1,8 +1,8 @@
-from panels import plot_tropical_hurricane_track
-from common_utils import *
-import xarray as xr
-import pandas as pd
 import cartopy.crs as ccrs
+import xarray as xr
+
+from common_utils import *
+from panels import plot_tropical_hurricane_track
 
 save_path = "plotting/Hurricane-Ian/tracks_14step_local.png"
 
@@ -94,4 +94,5 @@ label = [
 
 fig, ax = plt.subplots(subplot_kw={"projection": ccrs.PlateCarree()}, figsize=(8, 10))
 ax = plot_tropical_hurricane_track(ax, dats, region=region, title=title, label=label)  # type: ignore
+plt.savefig(save_path)
 plt.savefig(save_path)

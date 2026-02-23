@@ -3,12 +3,11 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import os
-
 import numpy as np
 import xarray as xr
-from common_utils import *
 from matplotlib.axes import Axes
+
+from common_utils import *
 from panels import *
 
 HOME = os.environ["HOME"]
@@ -157,4 +156,5 @@ fig.legend(
 )
 
 outpath = os.path.join(HOME, "WeatherPlots/outputs/pnwh_optimized_ts_b.png")
+fig.savefig(outpath, bbox_inches="tight")
 fig.savefig(outpath, bbox_inches="tight")
