@@ -1,0 +1,97 @@
+{
+    "folder": "/home/users/f/froelicm/scratch/output/3511264",
+    "experiment_config_file": "experiment_config.json",
+    "output_file": "ke_maps.png",
+    "load_ground_truth": true,
+    "plot_ground_truth": true,
+    "ground_truth_path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
+    "plot_inputs_and_outputs": true,
+    "epochs": [
+        0,
+        10,
+        20,
+        30
+    ],
+    "region": [
+        0,
+        -170,
+        16,
+        -145
+    ],
+    "columns": {
+        "input_0": 0,
+        "input_2": 1,
+        "+6h": 2,
+        "+12h": 3,
+        "+18h": 4,
+        "+24h": 5,
+        "+30h": 6,
+        "+36h": 7,
+        "+42h": 8,
+        "+48h": 9,
+        "+54h": 10,
+        "+60h": 11,
+        "+66h": 12,
+        "+72h": 13
+    },
+    "fcontour": {
+        "variable": "10m_kinetic_energy",
+        "level": null,
+        "specs": {
+            "cmap": "PRGn",
+            "levels": [
+                10,
+                20,
+                40,
+                60,
+                80,
+                100,
+                140,
+                160,
+                180,
+                200,
+                220,
+                240,
+                260,
+                280,
+                300,
+                320
+            ],
+            "extend": "max"
+        }
+    },
+    "contour": {
+        "variable": "mean_sea_level_pressure",
+        "level": null,
+        "specs": {
+            "colors": "black",
+            "levels": [
+                930,
+                940,
+                950,
+                960,
+                970,
+                980,
+                990,
+                1000,
+                1010,
+                1020,
+                1030,
+                1040
+            ],
+            "label": true
+        }
+    },
+    "land_color": "#E3DFBF",
+    "figsize": [
+        30,
+        6
+    ],
+    "colormap_label": "10m Kinetic Energy (J/kg)",
+    "colormap_position": [
+        0.02,
+        0.15,
+        0.02,
+        0.7
+    ]
+}

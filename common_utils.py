@@ -59,8 +59,14 @@ def prep_data(
 
     # Subselect region and time
     if region is not None:
-        minlat, minlon, maxlat, maxlon = region
-        ds = ds.sel(lat=slice(minlat, maxlat), lon=slice(minlon, maxlon))
+        minlat, minlon, maxlat, maxlon = get_coords(ds, region)
+        ds = ds.sel(lat=slice(minlat, maxlat))
+        if minlon > maxlon:  # crossing 0 or 180 longitude
+            ds1 = ds.sel(lon=slice(minlon, None))
+            ds2 = ds.sel(lon=slice(None, maxlon))
+            ds = xr.concat([ds1, ds2], dim="lon")
+        else:
+            ds = ds.sel(lon=slice(minlon, maxlon))
 
     if time_range is not None:
         if isinstance(time_range, Tuple):
@@ -96,6 +102,40 @@ def prep_data(
     if "batch" in ds.dims:
         ds = ds.squeeze("batch", drop=True)
     return ds
+
+
+def get_coords(ds, region) -> tuple[float, float, float, float]:
+    ds_lats = ds.coords["lat"].values
+    if ds_lats[0] < ds_lats[-1]:  # if lats are in ascending order
+        if region[0] <= region[2]:
+            minlat = max(region[0], ds_lats[0])
+            maxlat = min(region[2], ds_lats[-1])
+        else:
+            minlat = max(region[2], ds_lats[0])
+            maxlat = min(region[0], ds_lats[-1])
+    else:
+        if region[0] <= region[2]:
+            minlat = max(region[0], ds_lats[-1])
+            maxlat = min(region[2], ds_lats[0])
+        else:
+            minlat = max(region[2], ds_lats[-1])
+            maxlat = min(region[0], ds_lats[0])
+
+    ds_lons = ds.coords["lon"].values
+    if all(ds_lons >= 0):  # if lons are in deg east
+        minlon = region[1] if region[1] >= 0 else region[1] + 360
+        maxlon = region[3] if region[3] >= 0 else region[3] + 360
+    else:
+        if region[1] >= 0 and region[1] < 180 and region[3] >= 0 and region[3] < 180:
+            pass
+        else:
+            # Assert lon is in [-180,180], else ambiguous with 0-360
+            assert abs(region[1]) <= 180 and abs(region[3]) <= 180
+
+        minlon = region[1]
+        maxlon = region[3]
+
+    return (minlat, minlon, maxlat, maxlon)
 
 
 def merge_netcdf_files(

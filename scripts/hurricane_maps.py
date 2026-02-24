@@ -135,6 +135,7 @@ def infer_input_steps(folder: str) -> int:
         ds = xr.open_dataset(first_input, chunks="auto")
         if "time" in ds.dims:
             return int(ds.sizes["time"])
+    # Default to 2
     return 2
 
 
@@ -337,12 +338,12 @@ def needs_input_files(config: HurricaneMapConfig, input_steps: int) -> bool:
 
 def split_requested_times(
     config: HurricaneMapConfig,
-    input_steps: int,
+    num_input_steps: int,
 ) -> tuple[list[int], list[int], list[int]]:
     requested_global = selected_times_from_columns(config)
-    requested_input = [t for t in requested_global if t < input_steps]
-    requested_output_global = [t for t in requested_global if t >= input_steps]
-    requested_output_local = [t - input_steps for t in requested_output_global]
+    requested_input = [t for t in requested_global if t < num_input_steps]
+    requested_output_global = [t for t in requested_global if t >= num_input_steps]
+    requested_output_local = [t - num_input_steps for t in requested_output_global]
     return requested_global, requested_input, requested_output_local
 
 
@@ -377,6 +378,8 @@ def build_epoch_dataset(
     - input_steps is first output timestep (local output index 0)
     """
     epoch_output = outputs.sel(epoch=epoch)
+    available_output_times = [int(t / 3600000000000) for t in epoch_output.time.values]
+    print(f"INFO: Epoch {epoch}: output time steps available: {available_output_times}")
     pieces = []
     selected_global_times = []
 
@@ -587,7 +590,7 @@ def main(config_path: str):
     num_times = len(experiment_time_axis)
     print(f"\n{'='*60}")
     print(f"Available time axis from experiment:")
-    print(f"  Total time steps: {num_times} (indices 0 to {num_times-1})")
+    print(f"  Total time steps: {num_times} (indices 2 to {num_times+1})")
     preview_times = [
         to_iso_time_string(t)
         for t in experiment_time_axis[: min(5, len(experiment_time_axis))]
@@ -633,13 +636,14 @@ def main(config_path: str):
             region = None
             if config.region is not None:
                 region = cast(tuple[float, float, float, float], tuple(config.region))
+
             map_func = lambda ax, dat=dat, t=local_t: plot_map_panel(
                 ax,
                 dat.isel(time=t),
                 fcontour=fcontour,
                 contour=contour,
                 arrows=None,
-                region=region,
+                region=None,  # should be region, but handle lon / lat convention
                 title=None,
                 land_color=config.land_color,
             )
