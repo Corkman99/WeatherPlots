@@ -3,7 +3,7 @@ import json
 import os
 import sys
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional, cast
 
@@ -362,6 +362,23 @@ def select_ground_truth_time_step(
         return ground_truth.isel(time=time_idx)
 
 
+def timedelta_to_hours_int(td: timedelta) -> int:
+    return int(td.total_seconds() // 3600)
+
+
+def np_to_timedelta(td: np.timedelta64) -> timedelta:
+    hours = int(td / np.timedelta64(1, "h"))
+    return timedelta(hours=hours)
+
+
+def time_to_hours_int(td: np.timedelta64) -> int:
+    if np.issubdtype(td.dtype, np.timedelta64):
+        return timedelta_to_hours_int(np_to_timedelta(td))
+    elif isinstance(td, timedelta):
+        return timedelta_to_hours_int(td)
+    raise ValueError(f"Expected timedelta or np.timedelta64, got {type(td)}")
+
+
 def build_epoch_dataset(
     epoch: int,
     outputs: xr.Dataset,
@@ -378,7 +395,7 @@ def build_epoch_dataset(
     - input_steps is first output timestep (local output index 0)
     """
     epoch_output = outputs.sel(epoch=epoch)
-    available_output_times = [int(t / 3600000000000) for t in epoch_output.time.values]
+    available_output_times = [time_to_hours_int(t) for t in epoch_output.time.values]
     print(f"INFO: Epoch {epoch}: output time steps available: {available_output_times}")
     pieces = []
     selected_global_times = []

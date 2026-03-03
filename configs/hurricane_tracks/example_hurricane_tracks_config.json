@@ -1,0 +1,82 @@
+{
+  "output_file": "hurricane_tracks_example.png",
+  "region": [
+    0,
+    185,
+    24,
+    215
+  ],
+  "figsize": [
+    10,
+    12
+  ],
+  "legend_loc": "right",
+  "datasets": {
+    "HRES-fc0": {
+      "path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
+      "colormap": "Blues",
+      "color": "#000000",
+      "linestyle": "-",
+      "timeframe": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ]
+    },
+    "1day-GC": {
+      "path": "/home/users/f/froelicm/scratch/output/dora/4step/3517382/output_epoch-0.nc",
+      "colormap": "viridis",
+      "color": "#ff0000",
+      "linestyle": "--",
+      "timeframe": null,
+      "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/3517382/input_epoch-1.nc"
+    },
+    "+0.5 (ep20)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora/4step/3517382/output_epoch-20.nc",
+      "color": "#ff0000",
+      "linestyle": "--",
+      "timeframe": null,
+      "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/3517382/input_epoch-20.nc"
+    },
+    "+1.5 (ep20)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora/4step/3517385/output_epoch-20.nc",
+      "color": "#ff0000",
+      "linestyle": "--",
+      "timeframe": null,
+      "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/3517385/input_epoch-20.nc"
+    },
+    "+3.0 (ep20)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora/4step/3517386/output_epoch-20.nc",
+      "color": "#ff0000",
+      "linestyle": "--",
+      "timeframe": null,
+      "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/3517386/input_epoch-20.nc"
+    },
+    "-0.5 (ep20)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora/4step/3517388/output_epoch-20.nc",
+      "color": "#ff0000",
+      "linestyle": "--",
+      "timeframe": null,
+      "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/3517388/input_epoch-20.nc"
+    },
+    "-1.5 (ep20)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora/4step/3517390/output_epoch-20.nc",
+      "color": "#ff0000",
+      "linestyle": "--",
+      "timeframe": null,
+      "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/3517390/input_epoch-20.nc"
+    },
+    "-3.0 (ep20)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora/4step/3517393/output_epoch-20.nc",
+      "color": "#ff0000",
+      "linestyle": "--",
+      "timeframe": null,
+      "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/3517393/input_epoch-20.nc"
+    }
+  }
+}

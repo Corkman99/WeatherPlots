@@ -1,5 +1,5 @@
 {
-    "folder": "/home/users/f/froelicm/scratch/output/3511264",
+    "folder": "/home/users/f/froelicm/scratch/output/dora/4step/plus_3.0",
     "experiment_config_file": "experiment_config.json",
     "output_file": "ke_maps.png",
     "load_ground_truth": true,
@@ -9,8 +9,7 @@
     "epochs": [
         0,
         10,
-        20,
-        30
+        20
     ],
     "region": [
         0,
@@ -24,15 +23,7 @@
         "+6h": 2,
         "+12h": 3,
         "+18h": 4,
-        "+24h": 5,
-        "+30h": 6,
-        "+36h": 7,
-        "+42h": 8,
-        "+48h": 9,
-        "+54h": 10,
-        "+60h": 11,
-        "+66h": 12,
-        "+72h": 13
+        "+24h": 5
     },
     "fcontour": {
         "variable": "10m_kinetic_energy",
@@ -84,7 +75,7 @@
     },
     "land_color": "#E3DFBF",
     "figsize": [
-        30,
+        10,
         6
     ],
     "colormap_label": "10m Kinetic Energy (J/kg)",

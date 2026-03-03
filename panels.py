@@ -1,12 +1,251 @@
-from typing import Union, Dict, Optional, Callable, List, Tuple, Any
-import numpy as np
-import xarray as xr
-import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
+import logging
+
+
+def extract_latlon_tuple(latlon_idx):
+    """
+    Robustly extract (lat, lon) as floats from any xarray return type:
+    - tuple/list: return first two elements as floats
+    - 0-d array: flatten and take first two as floats
+    - scalar: return (float(val), float(val))
+    """
+
+    def to_360(lon):
+        """Convert longitude to 0–360 convention."""
+        lon = float(lon)
+        return lon if 0 <= lon <= 360 else (lon + 360 if lon < 0 else lon)
+
+    if isinstance(latlon_idx, (tuple, list)):
+        if len(latlon_idx) >= 2:
+            if isinstance(latlon_idx[0], (tuple, list, np.ndarray)):
+                logging.info(f"extract_latlon_tuple: tuple of tuples {latlon_idx}")
+                lat = float(latlon_idx[0][0])
+                lon = to_360(latlon_idx[0][1])
+                return lat, lon
+            lat = float(latlon_idx[0])
+            lon = to_360(latlon_idx[1])
+            return lat, lon
+        elif len(latlon_idx) == 1:
+            if isinstance(latlon_idx[0], (tuple, list, np.ndarray)):
+                logging.info(f"extract_latlon_tuple: single tuple {latlon_idx}")
+                lat = float(latlon_idx[0][0])
+                lon = to_360(latlon_idx[0][1])
+                return lat, lon
+            lat = float(latlon_idx[0])
+            lon = to_360(latlon_idx[0])
+            return lat, lon
+        else:
+            raise ValueError("latlon_idx tuple/list is empty")
+    elif hasattr(latlon_idx, "shape"):
+        arr = np.ravel(latlon_idx)
+        if arr.size >= 2:
+            if isinstance(arr[0], (tuple, list, np.ndarray)):
+                logging.info(f"extract_latlon_tuple: array of tuples {arr}")
+                lat = float(arr[0][0])
+                lon = to_360(arr[0][1])
+                return lat, lon
+            lat = float(arr[0])
+            lon = to_360(arr[1])
+            return lat, lon
+        elif arr.size == 1:
+            if isinstance(arr[0], (tuple, list, np.ndarray)):
+                logging.info(f"extract_latlon_tuple: single array tuple {arr}")
+                lat = float(arr[0][0])
+                lon = to_360(arr[0][1])
+                return lat, lon
+            lat = float(arr[0])
+            lon = to_360(arr[0])
+            return lat, lon
+        else:
+            raise ValueError("latlon_idx array is empty")
+    else:
+        # Scalar
+        logging.info(f"extract_latlon_tuple: scalar {latlon_idx}")
+        lat = float(latlon_idx)
+        lon = to_360(latlon_idx)
+        return lat, lon
+
+
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+import matplotlib.pyplot as plt
+import numpy as np
+import xarray as xr
 from cartopy.mpl.geoaxes import GeoAxes
 from common_utils import get_weights
+from matplotlib.axes import Axes
+
+
+def plot_tropical_hurricane_track_2(
+    ax: GeoAxes,
+    ds: Union[xr.DataArray, Tuple[Union[xr.Dataset, xr.DataArray], ...]],
+    search_region: Tuple[float, float, float, float],
+    plot_region: Tuple[float, float, float, float],
+    title: Optional[str] = None,
+    plot_kwargs: Optional[dict] = None,
+):
+    """
+    Improved hurricane track plotting:
+    - Accepts single or multiple datasets
+    - Accepts colormap or color for each dataset
+    - Handles label externally (no legend inside)
+    - Robust to single dataset/colormap
+    """
+    import matplotlib.cm as cm
+    from matplotlib.colors import to_rgba
+
+    def _extract_hurricane_centers(mslp, minlat, minlon, maxlat, maxlon, tol=20):
+        subregion = mslp.sel(lat=slice(minlat, maxlat), lon=slice(minlon, maxlon))
+        min_coords = []
+        for t in subregion.time:
+            slice_t = subregion.sel(time=t, drop=True)
+            stacked = slice_t.stack(points=("lat", "lon"))
+            # Find the index of the minimum value
+            argmin_idx = (
+                stacked.argmin("points").compute()
+                if hasattr(stacked, "argmin")
+                else stacked.argmin("points")
+            )
+            # Get the corresponding lat/lon
+            latlon_idx = stacked.points[argmin_idx].values
+            min_lat, min_lon = extract_latlon_tuple(latlon_idx)
+            if min_coords:
+                prev_lon, prev_lat = min_coords[-1]
+                dist = np.sqrt((min_lon - prev_lon) ** 2 + (min_lat - prev_lat) ** 2)
+                if dist > tol:
+                    min_lon, min_lat = prev_lon, prev_lat
+            min_coords.append((min_lon, min_lat))
+        return min_coords
+
+    # Accept single or tuple of datasets
+    if isinstance(ds, (xr.DataArray, xr.Dataset)):
+        ds = (ds,)
+
+    n = len(ds)
+    logging.info(f"plot_tropical_hurricane_track_2: called with {n} datasets")
+    centers = []
+    for i, d in enumerate(ds):
+        logging.info(f"_extract_hurricane_centers: processing dataset {i}")
+        if isinstance(d, xr.Dataset):
+            var_name = list(d.data_vars)[0]
+            d = d[var_name]
+        center = _extract_hurricane_centers(
+            d,
+            search_region[0],
+            search_region[1],
+            search_region[2],
+            search_region[3],
+        )
+        logging.info(
+            f"_extract_hurricane_centers: found {len(center)} points for dataset {i}"
+        )
+        centers.append(center)
+
+    # Set up plot_kwargs
+    if plot_kwargs is None:
+        plot_kwargs = {}
+
+    # Accept single or list for each kwarg
+    def get_kw(key, default):
+        v = plot_kwargs.get(key, default)
+        if isinstance(v, list):
+            return v
+        return [v] * n
+
+    colormaps = get_kw("color", "coolwarm")
+    markers = get_kw("marker", "o")
+    linestyles = get_kw("linestyle", "-")
+    linewidths = get_kw("linewidth", 1)
+    alphas = get_kw("alpha", 1.0)
+    cmaps = plot_kwargs.get("cmap", True)
+
+    # Always use PlateCarree(central_longitude=0) for 0–360° convention
+    pc_crs = ccrs.PlateCarree(central_longitude=0)
+
+    def to_minus180_180(lon):
+        """Convert 0–360 longitude to -180 to 180."""
+        return lon - 360 if lon > 180 else lon
+
+    if isinstance(ax, GeoAxes):
+        extent_lons = [to_minus180_180(plot_region[1]), to_minus180_180(plot_region[3])]
+        logging.info(
+            f"Setting plot extent: lons={extent_lons}, lats={[plot_region[0], plot_region[2]]}"
+        )
+        ax.set_extent(
+            extent_lons + [plot_region[0], plot_region[2]],
+            crs=pc_crs,
+        )
+        ax.coastlines(linewidth=plot_kwargs.get("coastline_linewidth", 1))
+        ax.add_feature(cfeature.BORDERS, linestyle=":")
+        ax.add_feature(
+            cfeature.LAND, facecolor=plot_kwargs.get("land_color", "lightgray")
+        )
+        if plot_kwargs.get("grid", False):
+            ax.gridlines(draw_labels=plot_kwargs.get("draw_labels", True))
+
+    for i, center in enumerate(centers):
+        # Unpack and convert lons from 0–360 to -180 to 180 for plotting
+        lons, lats = zip(*center)
+        lons = [to_minus180_180(lon) for lon in lons]
+        logging.info(f"Plotting track lons: {lons}")
+        if plot_kwargs.get("smooth", False):
+            from scipy.signal import savgol_filter
+
+            lons = savgol_filter(
+                lons, window_length=plot_kwargs.get("smoothing_window", 7), polyorder=3
+            )
+            lats = savgol_filter(
+                lats, window_length=plot_kwargs.get("smoothing_window", 7), polyorder=3
+            )
+        if cmaps:
+            # Use colormap for time progression
+            color_spec = (
+                cm.get_cmap(colormaps[i])
+                if isinstance(colormaps[i], str)
+                else colormaps[i]
+            )
+            col = [color_spec(j) for j in np.linspace(0, 1, len(lons) - 1)]
+            colored_line_between_pts(
+                lons,
+                lats,
+                col,
+                ax,
+                linestyle=linestyles[i],
+                linewidth=linewidths[i],
+                alpha=alphas[i],
+                transform=pc_crs,
+            )
+        else:
+            ax.plot(
+                lons,
+                lats,
+                marker=markers[i],
+                color=(
+                    colormaps[i]
+                    if isinstance(colormaps[i], str)
+                    else to_rgba(colormaps[i])
+                ),
+                linestyle=linestyles[i],
+                linewidth=linewidths[i],
+                alpha=alphas[i],
+                transform=pc_crs,
+            )
+    if title:
+        ax.set_title(title)
+    return ax, centers
+
+
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import matplotlib.pyplot as plt
+import numpy as np
+import xarray as xr
+from cartopy.mpl.geoaxes import GeoAxes
+from common_utils import get_weights
+from matplotlib.axes import Axes
 
 """
 Plotting Functions for xarrays
@@ -347,8 +586,8 @@ def plot_tropical_hurricane_track(
     legend: bool = True,
     plot_kwargs: Dict[str, Any] = {},
 ):
-    from matplotlib.colors import LinearSegmentedColormap
     import matplotlib.cm as cm
+    from matplotlib.colors import LinearSegmentedColormap
 
     def _extract_hurricane_centers(mslp, minlat, minlon, maxlat, maxlon, tol=20):
         assert mslp.lat.min() <= minlat
@@ -571,7 +810,7 @@ def plot_variable_as_line(
     return ax
 
 
-#import xrft
+# import xrft
 
 
 def plot_PSD_Coh(

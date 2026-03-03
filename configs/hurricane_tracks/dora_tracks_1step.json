@@ -1,0 +1,76 @@
+{
+    "output_file": "dora_1step2.png",
+    "region": [
+        8,
+        190,
+        14,
+        205
+    ],
+    "figsize": [
+        10,
+        12
+    ],
+    "legend_loc": "right",
+    "datasets": {
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
+            "color": "#000000",
+            "linestyle": "-",
+            "timeframe": [
+                14,
+                15,
+                16,
+                17
+            ]
+        },
+        "1step-GC": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_0.5/output_epoch-0.nc",
+            "color": "#ff0000",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_0.5/input_epoch-0.nc"
+        },
+        "+0.5 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_0.5/output_epoch-20.nc",
+            "color": "#ff0000",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_0.5/input_epoch-20.nc"
+        },
+        "+1.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_1.0/output_epoch-20.nc",
+            "color": "#ff0000",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_1.0/input_epoch-20.nc"
+        },
+        "+2.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_2.0/output_epoch-20.nc",
+            "color": "#ff0000",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_2.0/input_epoch-20.nc"
+        },
+        "-0.5 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_0.5/output_epoch-20.nc",
+            "color": "#ff0000",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_0.5/input_epoch-20.nc"
+        },
+        "-1.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_1.0/output_epoch-20.nc",
+            "color": "#ff0000",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_1.0/input_epoch-20.nc"
+        },
+        "-2.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_2.0/output_epoch-20.nc",
+            "color": "#ff0000",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_2.0/input_epoch-20.nc"
+        }
+    }
+}

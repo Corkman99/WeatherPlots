@@ -13,7 +13,24 @@ from matplotlib.colors import Colormap
 from matplotlib.figure import Figure
 from pandas import Index
 
-# import spectrum
+
+# Utility: Standardize xarray dimension names
+def standardize_xarray_dims(ds):
+    """
+    If 'valid_time' is a dimension, rename it to 'time',
+    and also rename 'latitude' to 'lat', 'longitude' to 'lon'.
+    Works for both xarray.Dataset and xarray.DataArray.
+    """
+    rename_dict = {}
+    if "valid_time" in ds.dims or "valid_time" in ds.coords:
+        rename_dict["valid_time"] = "time"
+    if "latitude" in ds.dims or "latitude" in ds.coords:
+        rename_dict["latitude"] = "lat"
+    if "longitude" in ds.dims or "longitude" in ds.coords:
+        rename_dict["longitude"] = "lon"
+    if rename_dict:
+        return ds.rename(rename_dict)
+    return ds
 
 
 def prep_data(
