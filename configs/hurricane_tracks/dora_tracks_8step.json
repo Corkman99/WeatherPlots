@@ -1,0 +1,138 @@
+{
+    "output_file": "outputs/dora_8step_penalized.png",
+    "region": [
+        8,
+        185,
+        14,
+        210
+    ],
+    "figsize": [
+        10,
+        12
+    ],
+    "legend_loc": "right",
+    "datasets": {
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
+            "color": "#000000",
+            "linestyle": "-",
+            "timeframe": [
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+            ]
+        },
+        "8step-GC": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_0.5/output_epoch-0.nc",
+            "color": "#0000ff",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_0.5/input_epoch-0.nc"
+        },
+        "-0.5 (ep10)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_0.5/output_epoch-10.nc",
+            "color": "#D1FA00",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_0.5/input_epoch-10.nc"
+        },
+        "-1.0 (ep1)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_1.0/output_epoch-1.nc",
+            "color": "#94C900",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_1.0/input_epoch-1.nc"
+        },
+        "-2.0 (ep3)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_2.0/output_epoch-3.nc",
+            "color": "#2F9400",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_2.0/input_epoch-3.nc"
+        },
+        "-3.0 (ep9)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0/output_epoch-9.nc",
+            "color": "#004F00",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0/input_epoch-9.nc"
+        },
+        "-5.0 (ep18)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_5.0/output_epoch-18.nc",
+            "color": "#002500",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_5.0/input_epoch-18.nc"
+        },
+        "-7.0 (ep27)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_7.0/output_epoch-27.nc",
+            "color": "#000100",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_7.0/input_epoch-27.nc"
+        },
+        "-10.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_10.0/output_epoch-20.nc",
+            "color": "#000000",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_10.0/input_epoch-20.nc"
+        },
+        "+0.5 (ep3)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_0.5/output_epoch-3.nc",
+            "color": "#FA7653",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_0.5/input_epoch-3.nc"
+        },
+        "+1.0 (ep2)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_1.0/output_epoch-2.nc",
+            "color": "#FA3400",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_1.0/input_epoch-2.nc"
+        },
+        "+2.0 (ep11)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_2.0/output_epoch-11.nc",
+            "color": "#FA1A00",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_2.0/input_epoch-11.nc"
+        },
+        "+3.0 (ep15)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_3.0/output_epoch-15.nc",
+            "color": "#FA0900",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_3.0/input_epoch-15.nc"
+        },
+        "+5.0 (ep30)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_5.0/output_epoch-30.nc",
+            "color": "#FA0100",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_5.0/input_epoch-30.nc"
+        },
+        "+7.0 (ep30)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_7.0/output_epoch-30.nc",
+            "color": "#FA0001",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_7.0/input_epoch-30.nc"
+        },
+        "+10.0 (ep30)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_10.0/output_epoch-30.nc",
+            "color": "#FA0000",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/plus_10.0/input_epoch-30.nc"
+        }
+    }
+}

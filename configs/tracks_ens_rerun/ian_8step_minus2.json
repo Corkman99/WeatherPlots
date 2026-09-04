@@ -1,0 +1,105 @@
+{
+    "output_file": "outputs/ian_rerun/ens_8step_minus2.png",
+    "region": [
+        20,
+        275.75,
+        28,
+        279.25
+    ],
+    "figsize": [
+        15,
+        15
+    ],
+    "legend_loc": "right",
+    "title": "Ian (2022) : -2deg lat target",
+    "reference_dataset": "8step-GraphCast_AMSE",
+    "plot_targets": {
+        "targets": [
+            [
+                25,
+                278.75
+            ]
+        ],
+        "kwargs": {
+            "color": "red",
+            "marker": "*"
+        }
+    },
+    "datasets": {
+        "8step-GraphCast_AMSE": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/ens_minus2.0/outputs_graphcast_amse/seed-1.nc",
+            "color": "red",
+            "linestyle": "-",
+            "marker": "D",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus2.0/input_epoch-0.nc"
+        },
+        "-2.0 GraphCast_AMSE (ep18)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/ens_minus2.0/outputs_graphcast_amse/seed0.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "color": "grey",
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus2.0/input_epoch-18.nc"
+        },
+        "8step-GraphCast_OP": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/ens_minus2.0/outputs_graphcast_op/seed-1.nc",
+            "color": "red",
+            "linestyle": "-",
+            "marker": "D",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus2.0/input_epoch-0.nc"
+        },
+        "-2.0 GraphCast_OP": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/ens_minus2.0/outputs_graphcast_op/seed0.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "color": "grey",
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus2.0/input_epoch-18.nc"
+        },
+        "8step-FengWu_v2": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/ens_minus2.0/outputs_fengwu_v2/seed-1.nc",
+            "linestyle": "-",
+            "color": "grey",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus2.0/input_epoch-0.nc"
+        },
+        "-2.0 FengWu_v2": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/ens_minus2.0/outputs_fengwu_v2/seed0.nc",
+            "linestyle": "--",
+            "color": "grey",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus2.0/input_epoch-18.nc"
+        },
+        "8step-Aurora_op": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/ens_minus2.0/outputs_aurora_op/seed-1.nc",
+            "linestyle": "-",
+            "color": "grey",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus2.0/input_epoch-0.nc"
+        },
+        "-2.0 Aurora_op": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/ens_minus2.0/outputs_aurora_op/seed0.nc",
+            "linestyle": "--",
+            "color": "grey",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus2.0/input_epoch-18.nc"
+        },
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/hresf0-fc0/weatherbench2_hres_t0_2022_09.nc",
+            "color": "green",
+            "linestyle": "-",
+            "timeframe": [
+                103,
+                104,
+                105,
+                106,
+                107,
+                108,
+                109,
+                110,
+                111,
+                112
+            ]
+        }
+    }
+}

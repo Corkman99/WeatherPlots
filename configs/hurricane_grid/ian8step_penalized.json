@@ -1,0 +1,21 @@
+{
+    "root_dir": "/home/users/f/froelicm/scratch/output/ian_penalized_grid_rerun_0001",
+    "analysis_path": "/home/users/f/froelicm/scratch/output/ian_penalized_grid_rerun_0001/target_0/input_epoch-0.nc",
+    "analysis_first_target_datetime": "2022-09-27T00:00:00",
+    "ifs_ens_path": "/home/users/f/froelicm/scratch/HRES-fc0/ifs_ens_20220926T18_48h.grib",
+    "output_file": "./outputs/ian_rerun/ifs_grid.png",
+    "norm_scales_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/stddev_by_level.nc",
+    "norm_locations_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/mean_by_level.nc",
+    "colormap": "viridis",
+    "marker_size": 70,
+    "marker_alpha": 0.95,
+    "annotate_points": false,
+    "center_only_mode": false,
+    "overlay": "hull",
+    "map_extent": [
+        23,
+        270,
+        31,
+        290
+    ]
+}

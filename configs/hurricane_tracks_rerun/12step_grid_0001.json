@@ -1,0 +1,24 @@
+{
+    "root_dir": "/home/users/f/froelicm/scratch/output/ian_12step_penalized_lr0001",
+    "analysis_path": "/home/users/f/froelicm/scratch/output/ian_12step_penalized_lr0001/target_0/input_epoch-0.nc",
+    "analysis_first_target_datetime": "2022-09-27T00:00:00",
+    "ifs_ens_path": "/home/users/f/froelicm/scratch/HRES-fc0/ifs_ens_20220925T18_72h.grib",
+    "output_file": "./outputs/ian_rerun/12step_grid_penalized_rerun_0001.png",
+    "norm_scales_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/stddev_by_level.nc",
+    "norm_locations_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/mean_by_level.nc",
+    "colormap": "magma_r",
+    "marker_size": 70,
+    "marker_alpha": 0.95,
+    "annotate_points": false,
+    "center_only_mode": false,
+    "map_extent": [
+        21,
+        272,
+        33,
+        284
+    ],
+    "log_scale": true,
+    "colorbar_vmin": 1e-7,
+    "colorbar_vmax": 5e-4,
+    "overlay": "hull"
+}

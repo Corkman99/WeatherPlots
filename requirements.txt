@@ -4,3 +4,4 @@ netcdf4
 matplotlib
 cartopy
 pydantic
+pyshtools

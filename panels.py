@@ -1,5 +1,7 @@
 import logging
 
+_logger = logging.getLogger(__name__)
+
 
 def extract_latlon_tuple(latlon_idx):
     """
@@ -73,8 +75,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from cartopy.mpl.geoaxes import GeoAxes
-from common_utils import get_weights
 from matplotlib.axes import Axes
+
+from common_utils import get_weights, region_to_cartopy_extent, select_region
+
+
+def _prepare_lon_for_plot(
+    ds: Union[xr.Dataset, xr.DataArray], lon_name: str = "lon"
+) -> Union[xr.Dataset, xr.DataArray]:
+    """Return dataset with continuous, monotonic longitudes for contour plotting."""
+    if lon_name not in ds.coords:
+        return ds
+
+    lons = np.asarray(ds[lon_name].values)
+    if lons.ndim != 1 or lons.size < 2:
+        return ds
+
+    is_monotonic = bool(np.all(np.diff(lons) >= 0))
+    if is_monotonic and not bool(ds.attrs.get("is_wraparound", False)):
+        return ds
+
+    out = ds.assign_coords({lon_name: ((ds[lon_name] + 180.0) % 360.0) - 180.0})
+    out = out.sortby(lon_name)
+    return out.assign_attrs({**out.attrs, "is_wraparound": False})
 
 
 def plot_tropical_hurricane_track_2(
@@ -84,6 +107,7 @@ def plot_tropical_hurricane_track_2(
     plot_region: Tuple[float, float, float, float],
     title: Optional[str] = None,
     plot_kwargs: Optional[dict] = None,
+    extend: Optional[str] = None,
 ):
     """
     Improved hurricane track plotting:
@@ -95,12 +119,19 @@ def plot_tropical_hurricane_track_2(
     import matplotlib.cm as cm
     from matplotlib.colors import to_rgba
 
-    def _extract_hurricane_centers(mslp, minlat, minlon, maxlat, maxlon, tol=20):
-        subregion = mslp.sel(lat=slice(minlat, maxlat), lon=slice(minlon, maxlon))
+    def _extract_hurricane_centers(var, minlat, minlon, maxlat, maxlon, tol=20):
+        _logger.info(
+            f"Available lat: {var.lat.values}; available lon: {var.lon.values}"
+        )
+        _logger.info("Requesting slice({minlat}, {maxlat}), ({minlon}, {maxlon})")
+        subregion = select_region(var, (minlat, minlon, maxlat, maxlon))
         min_coords = []
         for t in subregion.time:
             slice_t = subregion.sel(time=t, drop=True)
             stacked = slice_t.stack(points=("lat", "lon"))
+            if stacked.size == 0:
+                logging.debug("No points in subregion for time %s; skipping", t.values)
+                continue
             # Find the index of the minimum value
             argmin_idx = (
                 stacked.argmin("points").compute()
@@ -112,7 +143,9 @@ def plot_tropical_hurricane_track_2(
             min_lat, min_lon = extract_latlon_tuple(latlon_idx)
             if min_coords:
                 prev_lon, prev_lat = min_coords[-1]
-                dist = np.sqrt((min_lon - prev_lon) ** 2 + (min_lat - prev_lat) ** 2)
+                # Use shortest wrapped longitudinal distance to avoid false jumps across dateline
+                lon_diff = ((min_lon - prev_lon + 540) % 360) - 180
+                dist = np.sqrt(lon_diff**2 + (min_lat - prev_lat) ** 2)
                 if dist > tol:
                     min_lon, min_lat = prev_lon, prev_lat
             min_coords.append((min_lon, min_lat))
@@ -124,13 +157,14 @@ def plot_tropical_hurricane_track_2(
 
     n = len(ds)
     logging.info(f"plot_tropical_hurricane_track_2: called with {n} datasets")
+
     centers = []
     for i, d in enumerate(ds):
         logging.info(f"_extract_hurricane_centers: processing dataset {i}")
         if isinstance(d, xr.Dataset):
             var_name = list(d.data_vars)[0]
             d = d[var_name]
-        center = _extract_hurricane_centers(
+        raw_centers = _extract_hurricane_centers(
             d,
             search_region[0],
             search_region[1],
@@ -138,27 +172,73 @@ def plot_tropical_hurricane_track_2(
             search_region[3],
         )
         logging.info(
-            f"_extract_hurricane_centers: found {len(center)} points for dataset {i}"
+            f"_extract_hurricane_centers: found {len(raw_centers)} points for dataset {i}"
         )
-        centers.append(center)
+        centers.append(raw_centers)
 
-    # Set up plot_kwargs
+    # --- PATCH: Robust per-dataset plot_kwargs handling ---
+    # plot_kwargs can be a single dict (applied to all) or a list of dicts (one per dataset)
     if plot_kwargs is None:
         plot_kwargs = {}
+    if extend is not None:
+        if isinstance(plot_kwargs, list):
+            for d in plot_kwargs:
+                d["extend"] = extend
+        else:
+            plot_kwargs["extend"] = extend
 
-    # Accept single or list for each kwarg
-    def get_kw(key, default):
-        v = plot_kwargs.get(key, default)
-        if isinstance(v, list):
+    # Helper to merge a list of dicts into a dict of lists
+    def merge_kwargs_list(kwargs_list, n):
+        merged = {}
+        for i in range(n):
+            for k, v in kwargs_list[i].items():
+                merged.setdefault(k, [None] * n)
+                merged[k][i] = v
+        # Fill missing with None
+        for k in merged:
+            for i in range(n):
+                if merged[k][i] is None:
+                    merged[k][i] = merged[k][0]  # fallback to first value
+        return merged
+
+    # Accept both single dict or list of dicts for plot_kwargs
+    if isinstance(plot_kwargs, list):
+        # Merge into dict of lists for per-dataset kwargs
+        merged_kwargs = merge_kwargs_list(plot_kwargs, n)
+
+        def get_kw(key, default):
+            v = merged_kwargs.get(key, [default] * n)
+            # If not a list, broadcast
+            if not isinstance(v, list):
+                return [v] * n
+            if len(v) < n:
+                v = v + [v[0]] * (n - len(v))
             return v
-        return [v] * n
+
+        cmaps = merged_kwargs.get("cmap", True)
+    else:
+        # Single dict: fallback to old behavior
+        def get_kw(key, default):
+            v = plot_kwargs.get(key, default)
+            if isinstance(v, list):
+                return v
+            return [v] * n
+
+        cmaps = plot_kwargs.get("cmap", True)
 
     colormaps = get_kw("color", "coolwarm")
     markers = get_kw("marker", "o")
     linestyles = get_kw("linestyle", "-")
     linewidths = get_kw("linewidth", 1)
     alphas = get_kw("alpha", 1.0)
-    cmaps = plot_kwargs.get("cmap", True)
+    marker_alphas = get_kw("marker_alpha", 1.0)
+    marker_sizes = get_kw("markersize", None)
+    marker_size_aliases = get_kw("marker_size", None)
+    marker_sizes = [
+        marker_sizes[i] if marker_sizes[i] is not None else marker_size_aliases[i]
+        for i in range(n)
+    ]
+    # --- END PATCH ---
 
     # Always use PlateCarree(central_longitude=0) for 0–360° convention
     pc_crs = ccrs.PlateCarree(central_longitude=0)
@@ -168,14 +248,10 @@ def plot_tropical_hurricane_track_2(
         return lon - 360 if lon > 180 else lon
 
     if isinstance(ax, GeoAxes):
-        extent_lons = [to_minus180_180(plot_region[1]), to_minus180_180(plot_region[3])]
-        logging.info(
-            f"Setting plot extent: lons={extent_lons}, lats={[plot_region[0], plot_region[2]]}"
-        )
-        ax.set_extent(
-            extent_lons + [plot_region[0], plot_region[2]],
-            crs=pc_crs,
-        )
+        extent = region_to_cartopy_extent(plot_region)
+        assert extent is not None
+        logging.info(f"Setting plot extent: {extent}")
+        ax.set_extent(extent, crs=pc_crs)
         ax.coastlines(linewidth=plot_kwargs.get("coastline_linewidth", 1))
         ax.add_feature(cfeature.BORDERS, linestyle=":")
         ax.add_feature(
@@ -185,10 +261,20 @@ def plot_tropical_hurricane_track_2(
             ax.gridlines(draw_labels=plot_kwargs.get("draw_labels", True))
 
     for i, center in enumerate(centers):
+        # Skip series with no extracted points
+        if not center:
+            logging.warning("No track points extracted for dataset %s; skipping", i)
+            continue
+
         # Unpack and convert lons from 0–360 to -180 to 180 for plotting
         lons, lats = zip(*center)
         lons = [to_minus180_180(lon) for lon in lons]
         logging.info(f"Plotting track lons: {lons}")
+        if len(lons) == 0:
+            logging.warning(
+                f"No longitude coordinates extracted for center number {i+1}"
+            )
+            continue
         if plot_kwargs.get("smooth", False):
             from scipy.signal import savgol_filter
 
@@ -216,20 +302,52 @@ def plot_tropical_hurricane_track_2(
                 alpha=alphas[i],
                 transform=pc_crs,
             )
+            # plot markers separately to allow different alpha for markers
+            try:
+                marker_color = color_spec(0.5)
+            except Exception:
+                marker_color = color_spec(0.0)
+            scatter_kwargs = {
+                "marker": markers[i],
+                "color": marker_color,
+                "transform": pc_crs,
+                "alpha": marker_alphas[i],
+                "zorder": 3,
+            }
+            if marker_sizes[i] is not None:
+                scatter_kwargs["s"] = marker_sizes[i]
+            ax.scatter(
+                [lons[-1]],
+                [lats[-1]],
+                **scatter_kwargs,
+            )
         else:
+            # plot line and markers separately so markers can have distinct alpha
+            line_color = (
+                colormaps[i] if isinstance(colormaps[i], str) else to_rgba(colormaps[i])
+            )
             ax.plot(
                 lons,
                 lats,
-                marker=markers[i],
-                color=(
-                    colormaps[i]
-                    if isinstance(colormaps[i], str)
-                    else to_rgba(colormaps[i])
-                ),
                 linestyle=linestyles[i],
                 linewidth=linewidths[i],
+                color=line_color,
                 alpha=alphas[i],
                 transform=pc_crs,
+            )
+            marker_kwargs = {
+                "linestyle": "None",
+                "marker": markers[i],
+                "color": line_color,
+                "alpha": marker_alphas[i],
+                "transform": pc_crs,
+            }
+            if marker_sizes[i] is not None:
+                marker_kwargs["markersize"] = marker_sizes[i]
+            ax.plot(
+                [lons[-1]],
+                [lats[-1]],
+                **marker_kwargs,
             )
     if title:
         ax.set_title(title)
@@ -244,8 +362,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from cartopy.mpl.geoaxes import GeoAxes
-from common_utils import get_weights
 from matplotlib.axes import Axes
+
+from common_utils import get_weights
 
 """
 Plotting Functions for xarrays
@@ -393,8 +512,9 @@ def plot_map_panel(
 
     # Subset region
     if region is not None:
-        lat_min, lon_min, lat_max, lon_max = region
-        ds = ds.sel(lat=slice(lat_min, lat_max), lon=slice(lon_min, lon_max))
+        ds = select_region(ds, region)
+
+    ds = _prepare_lon_for_plot(ds)
 
     # Plot filled contour
     if fcontour is not None:
@@ -421,7 +541,15 @@ def plot_map_panel(
             **spec,
         )
         if lab:
-            ax.clabel(cs, inline=True, fontsize=8, fmt="%d")  # You can customize this
+            contour_fontsize = kwargs.get(
+                "contour_fontsize", kwargs.get("font_size", 8)
+            )
+            ax.clabel(
+                cs,
+                inline=True,
+                fontsize=contour_fontsize,
+                fmt="%d",
+            )  # You can customize this
 
     # Plot arrows
     if arrows is not None:
@@ -442,16 +570,28 @@ def plot_map_panel(
     # Add map features
     if isinstance(ax, GeoAxes):
         ax.coastlines(linewidth=kwargs.get("coastline_linewidth", 1))
-        ax.set_extent(
-            [ds.lon.min(), ds.lon.max(), ds.lat.min(), ds.lat.max()],
-            crs=projection,
+        extent = (
+            region_to_cartopy_extent(region, ds)
+            if region is not None
+            else region_to_cartopy_extent((None, None, None, None), ds)
         )
+        if extent is not None:
+            ax.set_extent(extent, crs=projection)
         if kwargs.get("border", False):
             ax.add_feature(cfeature.BORDERS, linestyle=":")
         ax.add_feature(cfeature.LAND, facecolor=kwargs.get("land_color", "lightgray"))
+        # Add US state boundaries
+        try:
+            ax.add_feature(cfeature.STATES, linewidth=0.7)
+        except AttributeError:
+            pass  # Some projections or Cartopy installs may not support STATES
 
     if title is not None:
-        ax.set_title(title)
+        title_fontsize = kwargs.get("title_fontsize", kwargs.get("font_size", None))
+        if title_fontsize is not None:
+            ax.set_title(title, fontsize=title_fontsize)
+        else:
+            ax.set_title(title)
 
     return ax
 
@@ -592,10 +732,7 @@ def plot_tropical_hurricane_track(
     def _extract_hurricane_centers(mslp, minlat, minlon, maxlat, maxlon, tol=20):
         assert mslp.lat.min() <= minlat
         assert mslp.lat.max() >= maxlat
-        assert mslp.lon.min() <= minlon
-        assert mslp.lon.max() >= maxlon
-
-        subregion = mslp.sel(lat=slice(minlat, maxlat), lon=slice(minlon, maxlon))
+        subregion = select_region(mslp, (minlat, minlon, maxlat, maxlon))
         min_coords = []
 
         for t in subregion.time:
@@ -672,10 +809,9 @@ def plot_tropical_hurricane_track(
         plot_kwargs["linewidth"] = [1] * n
 
     if isinstance(ax, GeoAxes):
-        ax.set_extent(
-            [plot_region[1], plot_region[3], plot_region[0], plot_region[2]],
-            crs=ccrs.PlateCarree(),
-        )
+        extent = region_to_cartopy_extent(plot_region)
+        assert extent is not None
+        ax.set_extent(extent, crs=ccrs.PlateCarree())
         ax.coastlines(linewidth=plot_kwargs.get("coastline_linewidth", 1))
         ax.add_feature(cfeature.BORDERS, linestyle=":")
         ax.add_feature(
@@ -887,18 +1023,11 @@ def plot_PSD_Coh(
         "variable", skipna=False
     )
 
-    # Plotting
+    # Plotting (PSD only)
     ax.plot(
         total["freq_r"],
         total["amp"],
-        label=f"{plot_kwargs.get("label","")} Amplitude ratio",
-        color=plot_kwargs.get("color", "k"),
-    )
-    ax.plot(
-        total["freq_r"],
-        total["coh"],
-        ls="--",
-        label=f"{plot_kwargs.get("label","")} Coherence",
+        label=f"{plot_kwargs.get('label','')} PSD",
         color=plot_kwargs.get("color", "k"),
     )
     if plot_kwargs.get("log_axis", True):
@@ -906,7 +1035,7 @@ def plot_PSD_Coh(
     # ax.set_xlim(1, total["freq_r"].max())
     # ax.set_ylim(0, 1.1)
     ax.set_xlabel(plot_kwargs.get("xlabel", "Total wavenumber"))
-    ax.set_ylabel(plot_kwargs.get("ylabel", ""))
+    ax.set_ylabel(plot_kwargs.get("ylabel", "Power spectral density"))
     if plot_kwargs.get("legend", True):
         ax.legend()
 

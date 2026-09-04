@@ -1,0 +1,72 @@
+{
+    "output_file": "outputs/dora/dora_4step_penalized_ensemble.png",
+    "region": [
+        7,
+        188,
+        17,
+        202
+    ],
+    "figsize": [
+        9,
+        10
+    ],
+    "legend_loc": "right",
+    "title": "Dora (2023) : -2",
+    "reference_dataset": "4step-GC",
+    "plot_targets": {
+        "targets": [
+            [
+                10.5,
+                191.25
+            ]
+        ],
+        "kwargs": {
+            "color": "red",
+            "marker": "*"
+        }
+    },
+    "datasets": {
+        "4step-GC": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_0.5/output_epoch-0.nc",
+            "color": "#559639",
+            "linestyle": "-",
+            "marker": "D",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_0.5/input_epoch-0.nc"
+        },
+        "-2.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_2.0/output_epoch-16.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "color": "#50EA0C",
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_2.0/input_epoch-6.nc"
+        },
+        "4step-FengWu_v2": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_2.0_ensemble/outputs_fengwu_v2/seed-1.nc",
+            "linestyle": "-",
+            "color": "#0B8E9C",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_2.0/input_epoch-0.nc"
+        },
+        "-2.0 FengWu_v2": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_2.0_ensemble/outputs_fengwu_v2/seed0.nc",
+            "linestyle": "--",
+            "color": "#6B4A3B",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_2.0/input_epoch-6.nc"
+        },
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
+            "color": "#000000",
+            "linestyle": "-",
+            "timeframe": [
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+            ]
+        }
+    }
+}

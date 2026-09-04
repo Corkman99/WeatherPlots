@@ -1,0 +1,46 @@
+{
+    "output_file": "hurricane_tracks_ensemble_example.png",
+    "region": [
+        5,
+        185,
+        18,
+        215
+    ],
+    "figsize": [
+        10,
+        12
+    ],
+    "legend_loc": "right",
+    "datasets": {
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
+            "color": "#000000",
+            "marker": "*",
+            "linestyle": "-",
+            "timeframe": [
+                14,
+                15,
+                16,
+                17
+            ]
+        },
+        "8step Ensemble": {
+            "directory": "/home/users/f/froelicm/scratch/output/dora_ensemble_members",
+            "pattern": "run_s{member_number}.nc",
+            "input_directory": "/home/users/f/froelicm/scratch/output/dora_ensemble_members",
+            "input_pattern": "input_s{member_number}.nc",
+            "member_ids": [
+                "1",
+                "2",
+                "5"
+            ],
+            "member_label_template": "8step member s{member_number}",
+            "color": "#1f77b4",
+            "linestyle": "--",
+            "marker": ".",
+            "line_alpha": 0.55,
+            "marker_alpha": 0.55,
+            "timeframe": null
+        }
+    }
+}

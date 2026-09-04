@@ -1,0 +1,90 @@
+{
+    "output_file": "outputs/ian/ian_12step_penalized_plus2_ensemble.png",
+    "region": [
+        14,
+        273,
+        31,
+        282
+    ],
+    "figsize": [
+        15,
+        7
+    ],
+    "legend_loc": "right",
+    "title": "Ian (2022) : +2deg lat target",
+    "reference_dataset": "12step-GC",
+    "plot_targets": {
+        "targets": [
+            [
+                29.0,
+                276.5
+            ]
+        ],
+        "kwargs": {
+            "color": "red",
+            "marker": "*"
+        }
+    },
+    "datasets": {
+        "12step-GC": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/plus_2/output_epoch-0.nc",
+            "color": "red",
+            "linestyle": "-",
+            "marker": "D",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/plus_2/input_epoch-0.nc"
+        },
+        "-2.0 GC-OP (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/plus_2/output_epoch-14.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "color": "red",
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/plus_2/input_epoch-14.nc"
+        },
+        "12step-FengWu_v2": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/ensemble_plus_2/outputs_fengwu_v2/seed-1.nc",
+            "linestyle": "-",
+            "color": "grey",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/plus_2/input_epoch-0.nc"
+        },
+        "-2.0 FengWu_v2": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/ensemble_plus_2/outputs_fengwu_v2/seed0.nc",
+            "linestyle": "--",
+            "color": "grey",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/plus_2/input_epoch-14.nc"
+        },
+        "12step-Aurora_op": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/ensemble_plus_2/outputs_aurora_op/seed-1.nc",
+            "linestyle": "-",
+            "color": "grey",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/plus_2/input_epoch-0.nc"
+        },
+        "-2.0 Aurora_op": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/ensemble_plus_2/outputs_aurora_op/seed0.nc",
+            "linestyle": "--",
+            "color": "grey",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/12step/plus_2/input_epoch-14.nc"
+        },
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/HRES-fc0/ian_gt.nc",
+            "color": "green",
+            "linestyle": "-",
+            "timeframe": [
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35
+            ]
+        }
+    }
+}

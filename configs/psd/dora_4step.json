@@ -1,0 +1,103 @@
+{
+  "output_dir": "/home/users/f/froelicm/WeatherPlots/outputs/dora/",
+  "output_path_root_name": "dora_4step_psd",
+  "variable_levels": [
+    [
+      "2m_temperature",
+      null
+    ],
+    [
+      "10m_u_component_of_wind",
+      null
+    ],
+    [
+      "10m_v_component_of_wind",
+      null
+    ],
+    [
+      "geopotential",
+      1000
+    ],
+    [
+      "geopotential",
+      850
+    ],
+    [
+      "geopotential",
+      500
+    ]
+  ],
+  "lmax": null,
+  "datasets": {
+    "-0.5 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_0.5/output_epoch-3.nc",
+      "color": "#1f77b4"
+    },
+    "-1.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_1.0/output_epoch-2.nc",
+      "color": "#ff7f0e"
+    },
+    "-2.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_2.0/output_epoch-6.nc",
+      "color": "#2ca02c"
+    },
+    "-3.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_3.0/output_epoch-18.nc",
+      "color": "#d62728"
+    },
+    "-5.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_5.0/output_epoch-26.nc",
+      "color": "#9467bd"
+    },
+    "-7.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_7.0/output_epoch-29.nc",
+      "color": "#8c564b"
+    },
+    "-10.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_10.0/output_epoch-26.nc",
+      "color": "#e377c2"
+    },
+    "+0.5 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/plus_0.5/output_epoch-2.nc",
+      "color": "#7f7f7f"
+    },
+    "+1.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/plus_1.0/output_epoch-5.nc",
+      "color": "#bcbd22"
+    },
+    "+2.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/plus_2.0/output_epoch-16.nc",
+      "color": "#17becf"
+    },
+    "+3.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/plus_3.0/output_epoch-30.nc",
+      "color": "#a2ffb3"
+    },
+    "+5.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/plus_5.0/output_epoch-29.nc",
+      "color": "#ffbb78"
+    },
+    "+7.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/plus_7.0/output_epoch-28.nc",
+      "color": "#98df8a"
+    },
+    "+10.0 (ep*)": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/plus_10.0/output_epoch-25.nc",
+      "color": "#ff9896"
+    },
+    "HRES-fc0": {
+      "path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
+      "color": "#000000",
+      "time_slice": [
+        14,
+        15,
+        16,
+        17
+      ]
+    },
+    "4step-GC": {
+      "path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_0.5/output_epoch-0.nc",
+      "color": "#000000"
+    }
+  }
+}

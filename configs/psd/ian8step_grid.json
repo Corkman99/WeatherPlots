@@ -1,0 +1,67 @@
+{
+    "output_dir": "/home/users/f/froelicm/WeatherPlots/outputs/ian_rerun/",
+    "output_path_root_name": "10ke_psd_ian_8step_rerun_0001",
+    "variable_levels": [
+        [
+            "10m_kinetic_energy",
+            null
+        ]
+    ],
+    "ifs_ens_path": "/home/users/f/froelicm/scratch/HRES-fc0/ifs_ens_20220926T18_48h.nc",
+    "lmax": 300,
+    "relative": "HRES-fc0",
+    "datasets": {
+        "-0.5": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus0.5",
+            "color": "#1f77b4",
+            "timeslice": -1
+        },
+        "-1.0": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus1.0",
+            "color": "#ff7f0e",
+            "timeslice": -1
+        },
+        "-2.0": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus2.0",
+            "color": "#2ca02c",
+            "timeslice": -1
+        },
+        "-3.0": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus3.0",
+            "color": "#d62728",
+            "timeslice": -1
+        },
+        "+0.5": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/plus0.5",
+            "color": "#7f7f7f",
+            "timeslice": -1
+        },
+        "+1.0": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/plus1.0",
+            "color": "#bcbd22",
+            "timeslice": -1
+        },
+        "+2.0": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/plus2.0",
+            "color": "#17becf",
+            "timeslice": -1
+        },
+        "+3.0": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/plus3.0",
+            "color": "#a2ffb3",
+            "timeslice": -1
+        },
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/hresf0-fc0/weatherbench2_hres_t0_2022_09.nc",
+            "color": "#000000",
+            "time_slice": [
+                112
+            ]
+        },
+        "Unperturbed": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus0.5/output_epoch-0.nc",
+            "color": "#000000",
+            "timeslice": -1
+        }
+    }
+}

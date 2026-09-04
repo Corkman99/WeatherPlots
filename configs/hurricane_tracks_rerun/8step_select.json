@@ -1,0 +1,80 @@
+{
+    "output_file": "outputs/ian_rerun/ian_penalized_8step_select.png",
+    "region": [
+        20,
+        275,
+        29,
+        279.5
+    ],
+    "search_region": [
+        10,
+        270,
+        35,
+        290
+    ],
+    "figsize": [
+        9,
+        12
+    ],
+    "legend_loc": "right",
+    "reference_dataset": "Unperturbed",
+    "diff_colormap": "coolwarm",
+    "log_colorbar": false,
+    "extend": "both",
+    "colorbar_label": "Weighted MSE (input diff)",
+    "norm_scales_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/stddev_by_level.nc",
+    "norm_locations_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/mean_by_level.nc",
+    "level_weight_map": null,
+    "per_variable_weights": {},
+    "title": null,
+    "font_size": 20,
+    "datasets": {
+        "North-west": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized_grid_rerun_0001/target_29/output_epoch-27.nc",
+            "color": "blue",
+            "linestyle": "--",
+            "linewidth": 5,
+            "marker_size": 10,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized_grid_rerun_0001/target_29/input_epoch-27.nc"
+        },
+        "East": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized_grid_rerun_0001/target_52/output_epoch-13.nc",
+            "color": "green",
+            "linestyle": "--",
+            "linewidth": 5,
+            "marker_size": 10,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized_grid_rerun_0001/target_52/input_epoch-13.nc"
+        },
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/hresf0-fc0/weatherbench2_hres_t0_2022_09.nc",
+            "color": "#000000",
+            "linestyle": "-",
+            "marker": "D",
+            "linewidth": 5,
+            "marker_size": 10,
+            "timeframe": [
+                101,
+                102,
+                103,
+                104,
+                105,
+                106,
+                107,
+                108,
+                109,
+                110,
+                111,
+                112
+            ]
+        },
+        "Unperturbed": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus0.5/output_epoch-0.nc",
+            "color": "#000000",
+            "linestyle": "--",
+            "linewidth": 5,
+            "timeframe": null,
+            "marker_size": 10,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/8step_0001/minus0.5/input_epoch-0.nc"
+        }
+    }
+}

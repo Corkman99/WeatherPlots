@@ -1,0 +1,80 @@
+{
+    "folder": "/home/users/f/froelicm/scratch/output/dora_penalized/12step/ensemble_plus_3.0",
+    "experiment_config_file": "experiment_config.json",
+    "output_file": "dora_12step_penalized_ke_mslp_plus3.0.png",
+    "load_ground_truth": true,
+    "plot_ground_truth": true,
+    "ground_truth_path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
+    "plot_inputs_and_outputs": true,
+    "epochs": [
+        0,
+        5,
+        10,
+        15,
+        20,
+        25
+    ],
+    "region": [
+        0,
+        -170,
+        16,
+        -145
+    ],
+    "columns": {
+        "input_0": 0,
+        "input_2": 1,
+        "+6h": 2,
+        "+12h": 3,
+        "+18h": 4,
+        "+1d": 5,
+        "+1d6h": 6,
+        "+1d12h": 7,
+        "+1d18h": 8,
+        "+2d": 9
+    },
+    "fcontour": {
+        "variable": "10m_kinetic_energy",
+        "level": null,
+        "specs": {
+            "cmap": "YlGn",
+            "levels": [
+                20,
+                40,
+                60,
+                80,
+                100,
+                120,
+                140,
+                160,
+                180
+            ],
+            "extend": "max"
+        }
+    },
+    "contour": {
+        "variable": "geopotential",
+        "level": 1000,
+        "specs": {
+            "colors": "black",
+            "levels": [
+                99800,
+                100000,
+                101000,
+                102000
+            ],
+            "label": true
+        }
+    },
+    "land_color": "#E3DFBF",
+    "figsize": [
+        32,
+        14
+    ],
+    "colormap_label": "10m Kinetic Energy (J/kg)",
+    "colormap_position": [
+        0.92,
+        0.15,
+        0.02,
+        0.7
+    ]
+}

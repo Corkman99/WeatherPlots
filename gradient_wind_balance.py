@@ -10,15 +10,18 @@ calc_all_motion_vector()
 plot_test_motion_vector()
 """
 
-import datetime, os
-import matplotlib.pyplot as plt
+import datetime
+import os
+
+import cartopy.crs as ccrs
 import iris
 import iris.plot as iplt
-import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
 import numpy as np
-
+from myiris import calculus, constants, grid  # this should be straight forward
 from windspharm.iris import VectorWind
-from myiris import calculus, grid, constants  # this should be straight forward
+
+from common_utils import select_region, wrapped_longitude_delta
 
 ddir = "/home/users/pr902839/disks/sjclim/ciaran/data/"
 fmt = "%HZ %d/%m/%Y"
@@ -283,9 +286,10 @@ def test_spheregrad(src="an"):
     fig.tight_layout()
 
 
+from typing import List, Optional, Tuple
+
 # DONE 
 import xarray
-from typing import List, Tuple, Optional
 
 EARTH_RADIUS = 6.38e6
 RADIANS = np.pi / 180
@@ -317,7 +321,7 @@ def calc_storm_motion_vector(
         zmin = _extract_hurricane_centers(
             field.sel(level=pl), minlat, minlon, maxlat, maxlon
         )
-        dlon = zmin[1][0] - zmin[0][0]
+        dlon = wrapped_longitude_delta(zmin[1][0], zmin[0][0])
         dlat = zmin[1][1] - zmin[0][1]
         lat0 = (zmin[1][1] + zmin[0][1]) / 2
         dx = EARTH_RADIUS * RADIANS * dlon * np.cos(RADIANS * lat0)
@@ -327,7 +331,7 @@ def calc_storm_motion_vector(
     return vectors
 
 def _extract_hurricane_centers(mslp, minlat, minlon, maxlat, maxlon):
-    subregion = mslp.sel(lat=slice(minlat, maxlat), lon=slice(minlon, maxlon))
+    subregion = select_region(mslp, (minlat, minlon, maxlat, maxlon))
     min_coords = []
     for t in subregion.time:
         slice_t = subregion.sel(time=t, drop=True).drop_vars(
@@ -992,6 +996,9 @@ def plot_gradient_winds(
     fig.suptitle(datetag, x=0.98, y=0.99, va="top", ha="right")
     fig.tight_layout()
     fig.savefig(
+        "gradient_winds_nn-maps-terms_{}_{}.png".format(src, vt.strftime(savefmt))
+    )
+    fig.show()
         "gradient_winds_nn-maps-terms_{}_{}.png".format(src, vt.strftime(savefmt))
     )
     fig.show()

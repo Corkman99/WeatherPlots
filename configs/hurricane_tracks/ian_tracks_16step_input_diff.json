@@ -1,0 +1,145 @@
+{
+    "output_file": "outputs/ian/ian_penalized_16step.png",
+    "region": [
+        12,
+        273,
+        32,
+        287
+    ],
+    "figsize": [
+        10,
+        12
+    ],
+    "legend_loc": "right",
+    "reference_dataset": "16step-GC",
+    "diff_colormap": "cool",
+    "log_colorbar": true,
+    "colorbar_vmin": 0.000001,
+    "colorbar_vmax": 0.001,
+    "extend": "both",
+    "colorbar_label": "Weighted MSE (input diff)",
+    "norm_scales_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/stddev_by_level.nc",
+    "norm_locations_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/mean_by_level.nc",
+    "level_weight_map": null,
+    "per_variable_weights": {},
+    "title": "Ian (2022) : +/- [.5, 1, 2, 3]",
+    "plot_targets": {
+        "targets": [
+            [
+                26.5,
+                278.25
+            ],
+            [
+                26,
+                278.5
+            ],
+            [
+                25,
+                278.75
+            ],
+            [
+                24,
+                279
+            ],
+            [
+                27.5,
+                277.75
+            ],
+            [
+                28,
+                277.5
+            ],
+            [
+                29,
+                276.5
+            ],
+            [
+                30,
+                275.25
+            ]
+        ],
+        "kwargs": {
+            "color": "red",
+            "marker": "*"
+        }
+    },
+    "datasets": {
+        "-0.5 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/minus_.5/output_epoch-13.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/minus_.5/input_epoch-13.nc"
+        },
+        "-1.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/minus_1/output_epoch-6.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/minus_1/input_epoch-6.nc"
+        },
+        "-2.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/minus_2/output_epoch-3.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/minus_2/input_epoch-3.nc"
+        },
+        "-3.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/minus_3/output_epoch-5.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/minus_3/input_epoch-5.nc"
+        },
+        "+0.5 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/plus_.5/output_epoch-12.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/plus_.5/input_epoch-12.nc"
+        },
+        "+1.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/plus_1/output_epoch-14.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/plus_1/input_epoch-14.nc"
+        },
+        "+2.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/plus_2/output_epoch-6.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/plus_2/input_epoch-6.nc"
+        },
+        "+3.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/plus_3/output_epoch-26.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/plus_3/input_epoch-26.nc"
+        },
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/HRES-fc0/ian_gt.nc",
+            "color": "#000000",
+            "linestyle": "-",
+            "timeframe": [
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35
+            ]
+        },
+        "16step-GC": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/minus_.5/output_epoch-0.nc",
+            "color": "#000000",
+            "linestyle": "--",
+            "marker": "D",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_penalized/16step/minus_.5/input_epoch-0.nc"
+        }
+    }
+}

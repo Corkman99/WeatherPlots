@@ -1,0 +1,82 @@
+{
+    "folder": "/home/users/f/froelicm/scratch/output/ian_penalized_grid_rerun_0001/target_29",
+    "experiment_config_file": "experiment_config.json",
+    "output_file": "ian_rerun_8step_uv_mslp_plus.png",
+    "output_path": "outputs/ian_rerun/",
+    "load_ground_truth": true,
+    "plot_ground_truth": true,
+    "ground_truth_path": "/home/users/f/froelicm/scratch/hresf0-fc0/weatherbench2_hres_t0_2022_09.nc",
+    "plot_inputs_and_outputs": true,
+    "epochs": [
+        0,
+        27
+    ],
+    "region": [
+        24,
+        272,
+        30,
+        282
+    ],
+    "columns": {
+        "+1d18h": 8,
+        "+2d": 9
+    },
+    "fcontour": {
+        "variable": "10m_wind_speed",
+        "level": null,
+        "specs": {
+            "cmap": "plasma_r",
+            "levels": [
+                16,
+                18,
+                20,
+                22,
+                24,
+                26,
+                28,
+                30,
+                32,
+                34,
+                36,
+                38,
+                40,
+                42,
+                44,
+                46,
+                48
+            ],
+            "extend": "max"
+        }
+    },
+    "contour": {
+        "variable": "mean_sea_level_pressure",
+        "level": null,
+        "specs": {
+            "colors": "black",
+            "levels": [
+                962,
+                970,
+                978,
+                986,
+                994,
+                1002,
+                1010,
+                1018
+            ],
+            "label": true
+        }
+    },
+    "land_color": "#E3DFBF",
+    "figsize": [
+        20,
+        18
+    ],
+    "colormap_label": "10m Wind Speed (m/s)",
+    "colormap_position": [
+        0.98,
+        0.15,
+        0.02,
+        0.7
+    ],
+    "font_size": 20
+}

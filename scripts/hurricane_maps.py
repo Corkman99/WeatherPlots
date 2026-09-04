@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import os
 import sys
 from dataclasses import dataclass
@@ -16,19 +17,22 @@ from matplotlib.colors import BoundaryNorm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from common_utils import (
-    create_multi_panel_figure,
-    from_aiwm2_to_graphcast,
-    merge_netcdf_files,
-    prep_data,
-)
+from common_utils import create_multi_panel_figure, prep_data
+from dataflows import _normalize_lat_lon, load_dataset, load_netcdf_collection
 from panels import plot_map_panel
 from scripts.hurricane_maps_config import HurricaneMapConfig
+
+_logger = logging.getLogger(__name__)
 
 OUTPUT_PATTERN = "output_epoch-*.nc"
 INPUT_PATTERN = "input_epoch-*.nc"
 DEFAULT_CONFIG_PATH = "configs/hurricane_maps/default_uv10_mslp.json"
-DERIVED_VARIABLES = {"10m_kinetic_energy", "kinetic_energy"}
+DERIVED_VARIABLES = {
+    "10m_kinetic_energy",
+    "kinetic_energy",
+    "relative_vorticity",
+    "10m_wind_speed",
+}
 
 
 @dataclass
@@ -59,7 +63,7 @@ def plot_item_to_panel_spec(item):
 def dependencies_for_variable(variable: str) -> set[str]:
     if variable in ["10m_wind_speed", "10m_kinetic_energy"]:
         return {"10m_u_component_of_wind", "10m_v_component_of_wind"}
-    if variable in ["wind_speed", "kinetic_energy"]:
+    if variable in ["wind_speed", "kinetic_energy", "relative_vorticity"]:
         return {"u_component_of_wind", "v_component_of_wind"}
     return {variable}
 
@@ -115,6 +119,11 @@ def add_derived_variables(ds: xr.Dataset, config: HurricaneMapConfig) -> xr.Data
             u_name = resolve_plotted_name("u_component_of_wind", item.level)
             v_name = resolve_plotted_name("v_component_of_wind", item.level)
             ds[ke_name] = (ds[u_name] ** 2 + ds[v_name] ** 2) / 2.0
+        elif item.variable == "relative_vorticity":
+            rv_name = resolve_plotted_name("relative_vorticity", item.level)
+            u_name = resolve_plotted_name("u_component_of_wind", item.level)
+            v_name = resolve_plotted_name("v_component_of_wind", item.level)
+            ds[rv_name] = derive_relative_vorticity(ds[u_name], ds[v_name])
     return ds
 
 
@@ -211,6 +220,11 @@ def to_iso_time_string(value) -> str:
 
 def align_dataset_time(ds: xr.Dataset, reference_time):
     if "time" in ds.coords and len(ds.time) == len(reference_time):
+        _logger.warning(
+            "Aligning dataset time to reference time. "
+            f"Dataset time values: {to_iso_time_string(ds.time.values)}, "
+            f"Reference time values: {to_iso_time_string(reference_time)}"
+        )
         ds = ds.assign_coords(time=reference_time)
     return ds
 
@@ -292,6 +306,10 @@ def requested_ground_truth_absolute_indices(
     return absolute_indices
 
 
+def to_height(ds: xr.Dataset) -> xr.Dataset:
+    return ds / 9.807
+
+
 def prepare_dataset(
     ds: xr.Dataset,
     variables: set[str],
@@ -302,6 +320,9 @@ def prepare_dataset(
     transforms = {}
     if "mean_sea_level_pressure" in variables:
         transforms["mean_sea_level_pressure"] = to_hpa
+
+    if "geopotential" in variables:
+        transforms["geopotential"] = to_hpa
 
     region = None
     if config.region is not None:
@@ -316,6 +337,9 @@ def prepare_dataset(
         transform=transforms if len(transforms) > 0 else None,
     )
     prepared = add_derived_variables(prepared, config)
+
+    prepared = _normalize_lat_lon(prepared)
+
     return prepared
 
 
@@ -504,11 +528,39 @@ def load_config(config_path: str) -> HurricaneMapConfig:
     return HurricaneMapConfig.model_validate_json(Path(config_path).read_text())
 
 
+def derive_relative_vorticity(u: xr.DataArray, v: xr.DataArray) -> xr.DataArray:
+    import metpy.calc as mpcalc
+    from metpy.units import units
+
+    dx, dy = mpcalc.lat_lon_grid_deltas(u.lon.values, u.lat.values)
+
+    zeta = []
+    if "epoch" in u.coords:
+        for ep in u.epoch.values:
+            zeta_ep = []
+            for t in u.time.values:
+                u_slice = u.sel(epoch=ep, time=t, drop=True) * units("m/s")
+                v_slice = v.sel(epoch=ep, time=t, drop=True) * units("m/s")
+                zeta_slice = mpcalc.vorticity(u_slice, v_slice, dx=dx, dy=dy)
+                zeta_ep.append(zeta_slice)
+            zeta.append(xr.concat(zeta_ep, dim="time"))
+        zeta = xr.concat(zeta, dim="epoch")
+    else:
+        for t in u.time.values:
+            u_slice = u.sel(time=t, drop=True) * units("m/s")
+            v_slice = v.sel(time=t, drop=True) * units("m/s")
+            zeta_slice = mpcalc.vorticity(u_slice, v_slice, dx=dx, dy=dy)
+            zeta.append(zeta_slice)
+        zeta = xr.concat(zeta, dim="time")
+    return zeta.rename("relative_vorticity")
+
+
 def main(config_path: str):
     config = load_config(config_path)
-
     exp_config = load_experiment_config(config.folder, config.experiment_config_file)
+    data_cfg = exp_config.get("data", {})
 
+    # Derive configs and computations
     variables, levels = required_variables_from_config(config)
     input_steps = infer_input_steps(config.folder)
     requested_global_times, requested_input_times, requested_output_local_times = (
@@ -516,7 +568,14 @@ def main(config_path: str):
     )
     requested_ground_truth_global_times = requested_global_times
 
-    outputs_raw = merge_netcdf_files(config.folder, pattern=OUTPUT_PATTERN)
+    actual_pattern = config.pattern or OUTPUT_PATTERN
+    start_stamp = datetime.fromisoformat(data_cfg["first_target_datetime"])
+    outputs_raw = load_netcdf_collection(
+        config.folder,
+        pattern=actual_pattern,
+        first_target_datetime=start_stamp,
+    )
+
     timeline = build_experiment_timeline(
         config.folder,
         config.experiment_config_file,
@@ -529,13 +588,18 @@ def main(config_path: str):
         variables,
         levels,
         config,
-        time_indices=requested_output_local_times,
+        time_indices=None,
     )
 
     # Auto-detect if inputs are needed based on requested time indices
     inputs = None
     if needs_input_files(config, input_steps):
-        inputs_raw = merge_netcdf_files(config.folder, pattern=INPUT_PATTERN)
+        inputs_pattern = config.pattern or INPUT_PATTERN
+        inputs_raw = load_netcdf_collection(
+            config.folder,
+            pattern=inputs_pattern,
+            first_target_datetime=start_stamp,
+        )
         inputs = prepare_dataset(
             inputs_raw,
             variables,
@@ -550,15 +614,10 @@ def main(config_path: str):
             raise ValueError(
                 "load_ground_truth=True requires ground_truth_path in config."
             )
-        ground_truth_raw = xr.open_dataset(config.ground_truth_path, chunks="auto")
-        # Convert to GraphCast-format if coming from AIWM2
-        if "valid_time" in ground_truth_raw.dims:
-            data_cfg = exp_config.get("data", {})
-            start_stamp = datetime.fromisoformat(data_cfg["first_target_datetime"])
-            ground_truth_raw = from_aiwm2_to_graphcast(
-                ground_truth_raw,
-                start_stamp,
-            )
+        ground_truth_raw = load_dataset(
+            config.ground_truth_path,
+            first_target_datetime=start_stamp,
+        )
 
         if timeline.start_stamp is not None:
             start_stamp_idx = find_start_stamp_index_in_ground_truth(
@@ -660,9 +719,10 @@ def main(config_path: str):
                 fcontour=fcontour,
                 contour=contour,
                 arrows=None,
-                region=None,  # should be region, but handle lon / lat convention
+                region=region,
                 title=None,
                 land_color=config.land_color,
+                font_size=config.font_size,
             )
             useful_hurricane_stats(dat.isel(time=local_t))
             maps.append(map_func)
@@ -693,9 +753,18 @@ def main(config_path: str):
         subplot_kw={"projection": ccrs.PlateCarree()},
         panel_labels={"row": row_titles, "col": column_titles},
         colormap=colormap,
+        font_size=config.font_size,
     )
 
-    save_path = os.path.join(config.folder, config.output_file)
+    from cartopy import feature as cfeature
+
+    # for ax in fig.axes:
+    #    ax.add_feature(cfeature.STATES, linewidth=0.7)
+
+    if config.output_path is not None:
+        save_path = os.path.join(config.output_path, config.output_file)
+    else:
+        save_path = os.path.join(config.folder, config.output_file)
     plt.savefig(save_path, bbox_inches="tight")
 
 

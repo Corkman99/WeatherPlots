@@ -1,0 +1,23 @@
+{
+    "root_dir": "/home/users/f/froelicm/scratch/output/ian_12step_softmin",
+    "analysis_path": "/home/users/f/froelicm/scratch/output/ian_12step_softmin/lat+29.00_lon+277.00/input_epoch-0.nc",
+    "analysis_first_target_datetime": "2022-09-27T00:00:00",
+    "ifs_ens_path": null,
+    "output_file": "./outputs/energy/12step_grid_lr-1e4_softmax-optimized_energy-penalized.png",
+    "norm_scales_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/stddev_by_level.nc",
+    "norm_locations_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/mean_by_level.nc",
+    "colormap": "magma_r",
+    "marker_size": 70,
+    "marker_alpha": 0.95,
+    "annotate_points": false,
+    "center_only_mode": false,
+    "map_extent": [
+        21,
+        272,
+        33,
+        284
+    ],
+    "overlay": "hull",
+    "score": "TotalEnergy",
+    "target_dir_regex": "^lat[+-]\\d+\\.\\d+_lon[+-]\\d+\\.\\d+$"
+}

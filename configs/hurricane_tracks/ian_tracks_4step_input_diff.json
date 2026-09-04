@@ -1,0 +1,138 @@
+{
+    "output_file": "outputs/ian_rerun/ian_penalized_4step.png",
+    "region": [
+        21,
+        275,
+        30,
+        280
+    ],
+    "figsize": [
+        9,
+        12
+    ],
+    "legend_loc": "right",
+    "reference_dataset": "4step-GC",
+    "diff_colormap": "cool",
+    "log_colorbar": true,
+    "colorbar_vmin": 0.000001,
+    "colorbar_vmax": 0.001,
+    "extend": "both",
+    "colorbar_label": "Weighted MSE (input diff)",
+    "norm_scales_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/stddev_by_level.nc",
+    "norm_locations_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/mean_by_level.nc",
+    "level_weight_map": null,
+    "per_variable_weights": {},
+    "title": "Ian (2022) : +/- [.5, 1, 2, 3]",
+    "plot_targets": {
+        "targets": [
+            [
+                26.5,
+                278.25
+            ],
+            [
+                26,
+                278.5
+            ],
+            [
+                25,
+                278.75
+            ],
+            [
+                24,
+                279
+            ],
+            [
+                27.5,
+                277.75
+            ],
+            [
+                28,
+                277.5
+            ],
+            [
+                29,
+                276.5
+            ],
+            [
+                30,
+                275.25
+            ]
+        ],
+        "kwargs": {
+            "color": "red",
+            "marker": "*"
+        }
+    },
+    "datasets": {
+        "-0.5 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/minus0.5/output_epoch-1.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/minus0.5/input_epoch-1.nc"
+        },
+        "-1.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/minus1.0/output_epoch-3.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/minus1.0/input_epoch-3.nc"
+        },
+        "-2.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/minus2.0/output_epoch-7.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/minus2.0/input_epoch-7.nc"
+        },
+        "-3.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/minus3.0/output_epoch-11.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/minus3.0/input_epoch-11.nc"
+        },
+        "+0.5 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/plus0.5/output_epoch-3.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/plus0.5/input_epoch-3.nc"
+        },
+        "+1.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/plus1.0/output_epoch-4.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/plus1.0/input_epoch-4.nc"
+        },
+        "+2.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/plus2.0/output_epoch-14.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/plus2.0/input_epoch-14.nc"
+        },
+        "+3.0 (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/plus3.0/output_epoch-30.nc",
+            "linestyle": "-",
+            "timeframe": null,
+            "marker": "X",
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/plus3.0/input_epoch-30.nc"
+        },
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/hresf0-fc0/weatherbench2_hres_t0_2022_09.nc",
+            "color": "#000000",
+            "linestyle": "-",
+            "timeframe": [
+                30,
+                31,
+                32,
+                33,
+                34,
+                35
+            ]
+        },
+        "4step-GC": {
+            "path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/minus0.5/output_epoch-0.nc",
+            "color": "#000000",
+            "linestyle": "--",
+            "marker": "D",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/ian_hresf0_rerun/4step/minus0.5/input_epoch-0.nc"
+        }
+    }
+}

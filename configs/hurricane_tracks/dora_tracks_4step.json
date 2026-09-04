@@ -1,10 +1,10 @@
 {
-    "output_file": "outputs/dora_4step.png",
+    "output_file": "outputs/dora_4step_ep5.png",
     "region": [
-        8,
-        190,
-        14,
-        205
+        6,
+        185,
+        17,
+        220
     ],
     "figsize": [
         10,
@@ -34,46 +34,53 @@
             "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_0.5/input_epoch-0.nc"
         },
         "+0.5 (ep20)": {
-            "path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_0.5/output_epoch-20.nc",
+            "path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_0.5/output_epoch-5.nc",
             "color": "#FA7653",
             "linestyle": "--",
             "timeframe": null,
-            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_0.5/input_epoch-20.nc"
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_0.5/input_epoch-5.nc"
         },
-        "+1.5 (ep20)": {
-            "path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_1.5/output_epoch-20.nc",
+        "+1.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_1.0/output_epoch-5.nc",
             "color": "#FA3400",
             "linestyle": "--",
             "timeframe": null,
-            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_1.5/input_epoch-20.nc"
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_1.0/input_epoch-5.nc"
         },
-        "+3.0 (ep20)": {
-            "path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_3.0/output_epoch-20.nc",
+        "+2.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_2.0/output_epoch-5.nc",
             "color": "#FA0900",
             "linestyle": "--",
             "timeframe": null,
-            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_3.0/input_epoch-20.nc"
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_2.0/input_epoch-5.nc"
+        },
+        "+3.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_3.0/output_epoch-5.nc",
+            "color": "#FA0900",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/plus_3.0/input_epoch-5.nc"
         },
         "-0.5 (ep20)": {
-            "path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_0.5/output_epoch-20.nc",
+            "path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_0.5/output_epoch-5.nc",
             "color": "#D1FA00",
             "linestyle": "--",
             "timeframe": null,
-            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_0.5/input_epoch-20.nc"
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_0.5/input_epoch-5.nc"
         },
-        "-1.5 (ep20)": {
-            "path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_1.5/output_epoch-20.nc",
+        "-1.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_1.0/output_epoch-5.nc",
             "color": "#94C900",
             "linestyle": "--",
             "timeframe": null,
-            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_1.5/input_epoch-20.nc"
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_1.0/input_epoch-5.nc"
         },
         "-3.0 (ep20)": {
-            "path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_3.0/output_epoch-20.nc",
+            "path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_3.0/output_epoch-5.nc",
             "color": "#2F9400",
             "linestyle": "--",
             "timeframe": null,
-            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_3.0/input_epoch-20.nc"
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/4step/minus_3.0/input_epoch-5.nc"
         }
     }
 }

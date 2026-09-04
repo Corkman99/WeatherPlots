@@ -1,0 +1,89 @@
+{
+    "output_file": "outputs/dora_1step_input_diff_ep20.png",
+    "region": [
+        11,
+        191,
+        13,
+        196
+    ],
+    "figsize": [
+        10,
+        12
+    ],
+    "legend_loc": "right",
+    "reference_dataset": "1step-GC",
+    "diff_colormap": "cool",
+    "diff_boundaries": [
+        0.00005,
+        0.0001,
+        0.00015,
+        0.0002,
+        0.00025,
+        0.0003,
+        0.00035,
+        0.0004,
+        0.0005,
+        0.0007
+    ],
+    "colorbar_label": "Weighted MSE (input diff)",
+    "norm_scales_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/stddev_by_level.nc",
+    "norm_locations_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/mean_by_level.nc",
+    "level_weight_map": null,
+    "per_variable_weights": {},
+    "title": "Dora (2023) - [-3,-2,-1,-0.5,0.5,1,2,3] at Epoch 20",
+    "datasets": {
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
+            "color": "#000000",
+            "linestyle": "-",
+            "timeframe": [
+                15,
+                16,
+                17
+            ]
+        },
+        "1step-GC": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_0.5/output_epoch-0.nc",
+            "color": "green",
+            "linestyle": "-",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_0.5/input_epoch-0.nc"
+        },
+        "+0.5 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_0.5/output_epoch-20.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_0.5/input_epoch-20.nc"
+        },
+        "+1.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_1.0/output_epoch-20.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_1.0/input_epoch-20.nc"
+        },
+        "+2.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_2.0/output_epoch-20.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/plus_2.0/input_epoch-20.nc"
+        },
+        "-0.5 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_0.5/output_epoch-20.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_0.5/input_epoch-20.nc"
+        },
+        "-1.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_1.0/output_epoch-20.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_1.0/input_epoch-20.nc"
+        },
+        "-2.0 (ep20)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_2.0/output_epoch-20.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora/1step/minus_2.0/input_epoch-20.nc"
+        }
+    }
+}

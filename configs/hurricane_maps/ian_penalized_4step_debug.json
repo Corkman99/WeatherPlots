@@ -1,35 +1,35 @@
 {
-    "folder": "/home/users/f/froelicm/scratch/output/dora/4step/plus_3.0",
+    "folder": "/home/users/f/froelicm/scratch/output/ian_penalized/4step/plus_3",
     "experiment_config_file": "experiment_config.json",
-    "output_file": "ke_maps.png",
+    "output_file": "ian_penalized_4step_plus3_debug.png",
+    "output_path": "outputs/ian/",
     "load_ground_truth": true,
     "plot_ground_truth": true,
-    "ground_truth_path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
-    "plot_inputs_and_outputs": true,
+    "ground_truth_path": "/home/users/f/froelicm/scratch/HRES-fc0/ian_gt.nc",
+    "plot_inputs_and_outputs": false,
     "epochs": [
         0,
+        2,
         10,
-        20
+        30
     ],
     "region": [
-        0,
-        -170,
-        16,
-        -145
+        15,
+        270,
+        30,
+        284
     ],
     "columns": {
-        "input_0": 0,
-        "input_2": 1,
         "+6h": 2,
         "+12h": 3,
         "+18h": 4,
-        "+24h": 5
+        "+1d": 5
     },
     "fcontour": {
         "variable": "10m_kinetic_energy",
         "level": null,
         "specs": {
-            "cmap": "PRGn",
+            "cmap": "YlGn",
             "levels": [
                 10,
                 20,
@@ -75,12 +75,12 @@
     },
     "land_color": "#E3DFBF",
     "figsize": [
-        10,
-        6
+        20,
+        15
     ],
     "colormap_label": "10m Kinetic Energy (J/kg)",
     "colormap_position": [
-        0.02,
+        0.98,
         0.15,
         0.02,
         0.7

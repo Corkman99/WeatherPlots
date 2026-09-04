@@ -26,6 +26,7 @@ class ArrowSpec(BaseModel):
 class HurricaneMapConfig(BaseModel):
     folder: str
     output_file: str = "ian_match_hres.png"
+    output_path: Optional[str] = None
     experiment_config_file: str = "experiment_config.json"
 
     load_ground_truth: bool = True
@@ -34,6 +35,9 @@ class HurricaneMapConfig(BaseModel):
 
     plot_inputs_and_outputs: bool = False
     epochs: list[int] = Field(default_factory=lambda: [0, 1, 2, 5])
+
+    # file glob pattern used to load epoch files (output and input by default)
+    pattern: Optional[str] = None
 
     region: Optional[tuple[float, float, float, float]] = (20, 272, 28, 284)
     columns: dict[str, int] = Field(default_factory=lambda: {"landfall": 0})
@@ -45,6 +49,7 @@ class HurricaneMapConfig(BaseModel):
     land_color: str = "#E3DFBF"
 
     figsize: tuple[int, int] = (18, 12)
+    font_size: int = 12
     colormap_label: str = "Field"
     colormap_position: list[float] = Field(
         default_factory=lambda: [0.02, 0.15, 0.02, 0.7]
@@ -62,6 +67,4 @@ class HurricaneMapConfig(BaseModel):
             )
         if not self.epochs:
             raise ValueError("epochs must contain at least one epoch index.")
-        if any(epoch < 0 for epoch in self.epochs):
-            raise ValueError("epochs must contain non-negative integers.")
         return self

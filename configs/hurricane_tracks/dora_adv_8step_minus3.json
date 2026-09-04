@@ -1,0 +1,90 @@
+{
+    "output_file": "outputs/dora/dora_8step_penalized_ensemble.png",
+    "region": [
+        7,
+        188,
+        18,
+        210
+    ],
+    "figsize": [
+        15,
+        7
+    ],
+    "legend_loc": "on_map",
+    "title": "Dora (2023) : -3",
+    "reference_dataset": "8step-GC",
+    "plot_targets": {
+        "targets": [
+            [
+                9.5,
+                191.25
+            ]
+        ],
+        "kwargs": {
+            "color": "red",
+            "marker": "*"
+        }
+    },
+    "datasets": {
+        "HRES-fc0": {
+            "path": "/home/users/f/froelicm/scratch/HRES-fc0/dora_gt.nc",
+            "color": "#000000",
+            "linestyle": "-",
+            "timeframe": [
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+            ]
+        },
+        "8step-GC": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_0.5/output_epoch-0.nc",
+            "color": "#559639",
+            "linestyle": "-",
+            "marker": "D",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_0.5/input_epoch-0.nc"
+        },
+        "-3.0 GC-OP (ep*)": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0/output_epoch-16.nc",
+            "linestyle": "--",
+            "timeframe": null,
+            "color": "#50EA0C",
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0/input_epoch-6.nc"
+        },
+        "8step-FengWu_v2": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0_ensemble/outputs_fengwu_v2/seed-1.nc",
+            "linestyle": "-",
+            "color": "#2E9BFA",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0/input_epoch-0.nc"
+        },
+        "-3.0 FengWu_v2": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0_ensemble/outputs_fengwu_v2/seed0.nc",
+            "linestyle": "--",
+            "color": "#4A457A",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0/input_epoch-6.nc"
+        },
+        "8step-Aurora_op": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0_ensemble/outputs_aurora_op/seed-1.nc",
+            "linestyle": "-",
+            "color": "#FABC0F",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0/input_epoch-0.nc"
+        },
+        "-3.0 Aurora_op": {
+            "path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0_ensemble/outputs_aurora_op/seed0.nc",
+            "linestyle": "--",
+            "color": "#6B4A3B",
+            "timeframe": null,
+            "input_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_3.0/input_epoch-6.nc"
+        }
+    }
+}

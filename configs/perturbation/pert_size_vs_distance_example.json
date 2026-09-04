@@ -1,0 +1,68 @@
+{
+    "home_paths": {
+        "1day": "/home/users/f/froelicm/scratch/output/dora_penalized/4step",
+        "2day": "/home/users/f/froelicm/scratch/output/dora_penalized/8step",
+        "3day": "/home/users/f/froelicm/scratch/output/dora_penalized/12step",
+        "4day": "/home/users/f/froelicm/scratch/output/dora_penalized/16step"
+    },
+    "ref_target": {
+        "1day": [
+            12.5,
+            191.5
+        ],
+        "2day": [
+            12.5,
+            191.25
+        ],
+        "3day": [
+            12.5,
+            191.25
+        ],
+        "4day": [
+            12.5,
+            191.25
+        ]
+    },
+    "search_region": [
+        0,
+        180,
+        25,
+        220
+    ],
+    "ensemble_norm_by_label": {
+        "1day": {
+            "reference_path": "/home/users/f/froelicm/scratch/output/dora_penalized/4step/minus_0.5/input_epoch-0.nc",
+            "ensemble_path": "/srv/beegfs/scratch/shares/engelkes/rsem/hresf0_ens/hresf0_ens_20230809T06.nc",
+            "first_target_datetime": "2023-08-09T12:00:00"
+        },
+        "2day": {
+            "reference_path": "/home/users/f/froelicm/scratch/output/dora_penalized/8step/minus_0.5/input_epoch-0.nc",
+            "ensemble_path": "/srv/beegfs/scratch/shares/engelkes/rsem/hresf0_ens/hresf0_ens_20230808T06.nc",
+            "first_target_datetime": "2023-08-08T12:00:00"
+        },
+        "3day": {
+            "reference_path": "/home/users/f/froelicm/scratch/output/dora_penalized/12step/minus_0.5/input_epoch-0.nc",
+            "ensemble_path": "/srv/beegfs/scratch/shares/engelkes/rsem/hresf0_ens/hresf0_ens_20230807T06.nc",
+            "first_target_datetime": "2023-08-07T12:00:00"
+        },
+        "4day": {
+            "reference_path": "/home/users/f/froelicm/scratch/output/dora_penalized/16step/minus_0.5/input_epoch-0.nc",
+            "ensemble_path": "/srv/beegfs/scratch/shares/engelkes/rsem/hresf0_ens/hresf0_ens_20230806T06.nc",
+            "first_target_datetime": "2023-08-06T12:00:00"
+        }
+    },
+    "norm_scales_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/stddev_by_level.nc",
+    "norm_locations_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/mean_by_level.nc",
+    "level_weight_map": null,
+    "per_variable_weights": null,
+    "chunks": "auto",
+    "output_dir": "./outputs/dora",
+    "output_file": "pert_size_vs_distance.png",
+    "title": "Perturbation Size vs Target Distance",
+    "xlabel": "Distance from reference target (km)",
+    "ylabel": "Normalized perturbation size (sigma_ens units)",
+    "marker_size": 24,
+    "alpha": 0.85,
+    "draw_line": false,
+    "grid": true
+}

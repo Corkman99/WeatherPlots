@@ -1,0 +1,18 @@
+{
+    "root_dir": "/home/users/f/froelicm/scratch/output/ian_unpenalized_grid",
+    "analysis_path": "/home/users/f/froelicm/scratch/output/ian_unpenalized_grid/target_0/input_epoch-0.nc",
+    "analysis_first_target_datetime": null,
+    "output_file": "./outputs/ian/8step_grid_unpenalized.png",
+    "norm_scales_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/stddev_by_level.nc",
+    "norm_locations_path": "/home/users/f/froelicm/scratch/GoogleDM/graphcast/stats/mean_by_level.nc",
+    "colormap": "viridis",
+    "marker_size": 70,
+    "marker_alpha": 0.95,
+    "annotate_points": false,
+    "map_extent": [
+        24,
+        275,
+        30,
+        281
+    ]
+}
